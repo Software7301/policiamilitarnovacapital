@@ -1,4 +1,4 @@
-
+/* CSS limpo e organizado para o painel admin */
 * {
     margin: 0;
     padding: 0;
@@ -172,6 +172,10 @@ body {
 }
 .denuncia-admin a:hover {
     text-decoration: underline;
+}
+.fade-out {
+  opacity: 0;
+  transition: opacity 1s ease;
 }
 @media (max-width: 600px) {
     .admin-login, .admin-panel {

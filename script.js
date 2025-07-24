@@ -1,6 +1,6 @@
 
 (function() {
-    emailjs.init("j5NUxYV1wKXAIsRuI");  
+    emailjs.init("j5NUxYV1wKXAIsRuI");
 })();
 
 const form = document.getElementById('denunciaForm');
@@ -46,7 +46,7 @@ form.addEventListener("submit", async function(event) {
         youtube: youtubeInput.value
     };
     const resumo = `Confirme os dados antes de enviar:\n\n` +
-                   `🧾 Tipo: ${tipoSelect.value.toUpperCase()}\n` +
+                   `🗾 Tipo: ${tipoSelect.value.toUpperCase()}\n` +
                    `📃 Descrição: ${descricaoInput.value}\n` +
                    `📺 Link YouTube: ${youtubeInput.value}`;
     if (!confirm(resumo)) {
@@ -55,7 +55,7 @@ form.addEventListener("submit", async function(event) {
         return;
     }
     try {
-        const resp = await fetch('http://127.0.0.1:5000/api/denuncias', {
+        const resp = await fetch('http://192.168.1.7:5000/api/denuncias', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -94,6 +94,7 @@ function exibirProtocoloNaTela(protocolo) {
     }
     div.innerHTML = `Seu protocolo: <span style='font-family:monospace;'>${protocolo}</span><br><small>Guarde este número para acompanhar sua denúncia.</small>`;
 }
+
 const text = "Nosso objetivo é garantir que suas denúncias, sugestões e elogios sejam ouvidos e tratados com seriedade. Sua voz é fundamental para a melhoria contínua da segurança pública.";
 const typedText = document.getElementById("typed-text");
 let index = 0;
@@ -101,7 +102,7 @@ function typeEffect() {
     if (index < text.length) {
         typedText.innerHTML += text.charAt(index);
         index++;
-        setTimeout(typeEffect, 35); 
+        setTimeout(typeEffect, 35);
     }
 }
 document.addEventListener("DOMContentLoaded", typeEffect);
@@ -185,7 +186,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Consulta de protocolo integrada ao backend
 document.addEventListener('DOMContentLoaded', function() {
     const formAcompanhar = document.getElementById('acompanharForm');
     const statusDiv = document.getElementById('statusProtocolo');
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const protocolo = document.getElementById('protocolo').value.trim();
             try {
-                const resp = await fetch(`http://127.0.0.1:5000/api/denuncias/${protocolo}`);
+                const resp = await fetch(`http://192.168.1.7:5000/api/denuncias/${protocolo}`);
                 if (!resp.ok) throw new Error('Protocolo não encontrado');
                 const denuncia = await resp.json();
                 let html = `Status: <b>${denuncia.status}</b><br>Tipo: ${denuncia.tipo}`;

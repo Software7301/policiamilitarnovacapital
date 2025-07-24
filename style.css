@@ -1,4 +1,4 @@
-
+/* CSS limpo e organizado para o frontend principal */
 * {
     margin: 0;
     padding: 0;
@@ -419,7 +419,6 @@ footer {
     0% { transform: rotate(0deg);}
     100% { transform: rotate(360deg);}
 }
-/* Responsividade geral para smartphones */
 @media (max-width: 700px) {
     body, html {
         font-size: 15px;

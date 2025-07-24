@@ -1,4 +1,3 @@
-// Persistência de login admin
 window.addEventListener('DOMContentLoaded', function() {
     if (localStorage.getItem('adminLogado') === '1') {
         document.getElementById('adminLogin').style.display = 'none';
@@ -41,12 +40,13 @@ document.getElementById('logoutAdmin').onclick = function() {
     btn.disabled = false;
     btn.innerHTML = 'Entrar';
 };
+
 async function carregarDenuncias() {
     const lista = document.getElementById('listaDenuncias');
     lista.innerHTML = '';
     let denuncias = [];
     try {
-        const resp = await fetch('https://ouvidoria-pmnca-production.up.railway.app/api/denuncias');
+        const resp = await fetch('http://192.168.1.7:5000/api/denuncias');
         denuncias = await resp.json();
     } catch {
         lista.innerHTML = '<p>Erro ao buscar denúncias do backend.</p>';
@@ -59,6 +59,7 @@ async function carregarDenuncias() {
     denuncias.forEach((d, i) => {
         const div = document.createElement('div');
         div.className = 'denuncia-admin';
+        div.id = 'denuncia-' + d.protocolo;
         div.innerHTML = `
             <div><label>Protocolo:</label> <span style='font-family:monospace;'>${d.protocolo}</span></div>
             <div><label>Nome:</label> ${d.nome || '<em>Anônimo</em>'}</div>
@@ -81,20 +82,25 @@ async function carregarDenuncias() {
             e.preventDefault && e.preventDefault();
             const protocolo = this.getAttribute('data-protocolo');
             const novoStatus = this.value;
-            await fetch(`https://ouvidoria-pmnca-production.up.railway.app/api/denuncias/${protocolo}`, {
+            await fetch(`http://192.168.1.7:5000/api/denuncias/${protocolo}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: novoStatus })
             });
-            // Animação fade-in no status
             const statusSpan = this.parentNode.querySelector('.status-admin');
             if (statusSpan) {
                 statusSpan.classList.remove('fade-status');
-                void statusSpan.offsetWidth; // força reflow
+                void statusSpan.offsetWidth;
                 statusSpan.classList.add('fade-status');
                 setTimeout(() => statusSpan.classList.remove('fade-status'), 500);
             }
-            carregarDenuncias();
+            if (novoStatus === 'Finalizada') {
+                const denunciaDiv = document.getElementById('denuncia-' + protocolo);
+                if (denunciaDiv) {
+                    denunciaDiv.classList.add('fade-out');
+                    setTimeout(() => denunciaDiv.remove(), 1000);
+                }
+            }
         };
     });
 }
