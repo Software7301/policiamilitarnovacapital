@@ -29,6 +29,10 @@ def init_db():
         ''')
 init_db()
 
+@app.route('/')
+def home():
+    return "API da Ouvidoria da Polícia Militar está online!"
+
 @app.route('/api/denuncias', methods=['POST'])
 def criar_denuncia():
     data = request.json
