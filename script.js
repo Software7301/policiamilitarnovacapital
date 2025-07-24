@@ -55,7 +55,7 @@ form.addEventListener("submit", async function(event) {
         return;
     }
     try {
-        const resp = await fetch('http://192.168.1.7:5000/api/denuncias', {
+        const resp = await fetch('https://policiamilitarnovacapital-production.up.railway.app/api/denuncias', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const protocolo = document.getElementById('protocolo').value.trim();
             try {
-                const resp = await fetch(`http://192.168.1.7:5000/api/denuncias/${protocolo}`);
+                const resp = await fetch(`https://policiamilitarnovacapital-production.up.railway.app/api/denuncias/${protocolo}`);
                 if (!resp.ok) throw new Error('Protocolo não encontrado');
                 const denuncia = await resp.json();
                 let html = `Status: <b>${denuncia.status}</b><br>Tipo: ${denuncia.tipo}`;

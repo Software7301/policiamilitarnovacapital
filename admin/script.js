@@ -46,7 +46,7 @@ async function carregarDenuncias() {
     lista.innerHTML = '';
     let denuncias = [];
     try {
-        const resp = await fetch('http://192.168.1.7:5000/api/denuncias');
+        const resp = await fetch('https://policiamilitarnovacapital-production.up.railway.app/api/denuncias');
         denuncias = await resp.json();
     } catch {
         lista.innerHTML = '<p>Erro ao buscar denúncias do backend.</p>';
@@ -82,7 +82,7 @@ async function carregarDenuncias() {
             e.preventDefault && e.preventDefault();
             const protocolo = this.getAttribute('data-protocolo');
             const novoStatus = this.value;
-            await fetch(`http://192.168.1.7:5000/api/denuncias/${protocolo}`, {
+            await fetch(`https://policiamilitarnovacapital-production.up.railway.app/api/denuncias/${protocolo}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: novoStatus })

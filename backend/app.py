@@ -8,7 +8,10 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 def get_db():
-    db_path = os.path.join('/tmp', 'ouvidoria.db')
+    if os.environ.get("RAILWAY_ENVIRONMENT"):
+        db_path = os.path.join('/tmp', 'ouvidoria.db')
+    else:
+        db_path = os.path.join(os.path.dirname(__file__), 'ouvidoria.db')
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
