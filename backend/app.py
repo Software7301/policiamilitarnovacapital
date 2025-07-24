@@ -3,6 +3,13 @@ from flask_cors import CORS
 import sqlite3
 import datetime
 import os
+import sys
+try:
+    print("Iniciando app.py", file=sys.stderr)
+except Exception as e:
+    print(f"Erro ao iniciar app.py: {e}", file=sys.stderr)
+
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -36,6 +43,10 @@ init_db()
 @app.route('/')
 def home():
     return "API da Ouvidoria da Polícia Militar está online!"
+
+@app.route('/test')
+def test():
+    return "Test OK"
 
 @app.route('/api/denuncias', methods=['POST'])
 def criar_denuncia():
