@@ -88,7 +88,3 @@ def buscar_por_protocolo(protocolo):
     if d:
         return jsonify(dict(d))
     return jsonify({'error': 'Protocolo não encontrado'}), 404
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
