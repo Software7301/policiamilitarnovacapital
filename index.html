@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ouvidoria da Polícia Militar</title>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2.6.4/dist/email.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="assets/Logo_PMESP.png" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Ouvidoria PM NC</h1>
+            <img class="logo-pmesp" src="assets/Logo_PMESP.png" alt="Logo PMESP">
+            <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu">
+                <span>&#9776;</span>
+            </button>
+        </div>
+        <nav>
+            <div class="nav-menu">
+                <ul>
+                    <li><a href="#home">Início</a></li>
+                    <li><a href="#denunciar">Denunciar</a></li>
+                    <li><a href="#contato">Contato</a></li>
+                    <li><a href="admin/admin.html" target="_blank">Painel</a></li>
+                </ul>                   
+            </div>
+        </nav>
+    </header>
+    <section id="home" class="home">
+        <div class="content">
+            <h2>Bem-vindo à Ouvidoria da Polícia Militar da Nova Capital</h2>
+            <p id="typed-text"></p>
+        </div>
+    </section>
+    <section class="estatisticas">
+        <div class="content">
+            <h2>Resultados da Ouvidoria</h2>
+            <div class="cards">
+                <div class="card">
+                    <h3>+1.200</h3>
+                    <p>Denúncias analisadas</p>
+                </div>
+                <div class="card">
+                    <h3>90%</h3>
+                    <p>Casos resolvidos</p>
+                </div>
+                <div class="card">
+                    <h3>3 dias</h3>
+                    <p>Tempo médio de resposta</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="denunciar" class="denunciar">
+        <div class="content">
+            <h2>Faça sua Denúncia ou Sugestão</h2>
+            <button id="showFormButton" class="cta-button">Fazer Denúncia</button>
+            <form id="denunciaForm" action="javascript:void(0);" method="POST" enctype="multipart/form-data">
+                <label for="nome">Nome Completo (opcional)</label>
+                <input type="text" id="nome" name="nome" placeholder="Digite seu nome">
+                <label for="rg">Rg</label>
+                <input type="text" id="rg" name="rg" placeholder="Digite seu Rg">
+                <label for="tipo">Tipo de Solicitação</label>
+                <select id="tipo" name="tipo" required>
+                    <option value="denuncia">Denúncia</option>
+                    <option value="elogio">Elogio</option>
+                    <option value="sugestao">Sugestão</option>
+                </select>
+                <label for="descricao">Descrição</label>
+                <textarea id="descricao" name="descricao" placeholder="Descreva sua solicitação" rows="5" required></textarea>
+                <label for="linkYoutube">Link Youtube</label>
+                <input type="url" id="linkYoutube" name="linkYoutube" placeholder="Coloque o link aqui" required>
+                <button type="submit" class="cta-button">Enviar</button>
+            </form>
+            <div id="formLoading" style="display:none;"></div>
+        </div>
+    </section>
+    <section id="galeria" class="galeria">
+        <div class="content">
+            <h2>Atuação da Polícia Militar</h2>
+            <div class="carousel">
+                <div class="carousel-track">
+                    <img src="assets/noticianc.png" alt="Imagem 1" />
+                    <img src="assets/formacao.png" alt="Imagem 2" />
+                    <img src="assets/formacao1.png" alt="Imagem 3" />
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="acompanhar" class="acompanhar">
+        <div class="content">
+            <h2>Acompanhe sua Denúncia</h2>
+            <form id="acompanharForm" autocomplete="off">
+                <label for="protocolo">Digite o número do protocolo:</label>
+                <input type="text" id="protocolo" name="protocolo" placeholder="Ex: 2025-0001" required>
+                <button type="submit" class="cta-button">Consultar</button>
+            </form>
+            <div id="statusProtocolo" class="status-protocolo"></div>
+        </div>
+    </section>
+    <section id="noticias" class="noticias">
+        <div class="content">
+            <h2>Notícias e Comunicados</h2>
+            <div class="noticias-lista">
+                <article class="noticia-card">
+                    <h3>Nova campanha de segurança nas escolas</h3>
+                    <span class="data">23/07/2025</span>
+                    <p>A Polícia Militar inicia uma nova campanha educativa em escolas da Nova Capital para promover a cidadania e a segurança.</p>
+                </article>
+                <article class="noticia-card">
+                    <h3>Ouvidoria bate recorde de denúncias resolvidas</h3>
+                    <span class="data">15/07/2025</span>
+                    <p>Mais de 90% das denúncias recebidas em 2025 já foram analisadas e respondidas pela equipe da Ouvidoria.</p>
+                </article>
+                <article class="noticia-card">
+                    <h3>Comunicado: Atendimento presencial ampliado</h3>
+                    <span class="data">10/07/2025</span>
+                    <p>Agora a Ouvidoria conta com mais um ponto de atendimento presencial no bairro Centro.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+    <section id="faq" class="faq">
+        <div class="content">
+            <h2>Perguntas Frequentes</h2>
+            <details>
+                <summary>Posso fazer uma denúncia anônima?</summary>
+                <p>Sim. Esse tipo de informação será totalmente confidencial.</p>
+            </details>
+            <details>
+                <summary>Receberei retorno da minha denúncia?</summary>
+                <p>Em alguns casos, sim. Dependendo das informações fornecidas.</p>
+            </details>
+            <details>
+                <summary>O que acontece após o envio?</summary>
+                <p>A denúncia será analisada por um setor responsável da PM.</p>
+            </details>
+        </div>
+    </section>
+    <section class="depoimentos">
+        <div class="content">
+            <h2>O que dizem sobre a Ouvidoria</h2>
+            <blockquote>"Fui tratado com respeito e minha denúncia foi levada a sério." — Cidadão Anônimo</blockquote>
+            <blockquote>"Uma ferramenta essencial para garantir a justiça." — Morador da Zona Norte</blockquote>
+        </div>
+    </section>
+    <section id="contato" class="contato">
+        <div class="content">
+            <h2>Entre em Contato</h2>
+            <ul>
+                <li><strong>Telefone de Emergência:</strong> 190</li>
+                <li><strong>E-mail:</strong> policiamilitarnovacapital@gmail.com</li>
+                <li><strong>Endereço:</strong> Complexo Da Policia, Cidade 3, San Fierro</li>
+            </ul>
+        </div>
+    </section>
+    <footer>
+        <p>&copy; 2025 Ouvidoria da Polícia Militar da Nova Capital. Todos os direitos reservados.</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>

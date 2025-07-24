@@ -1,0 +1,575 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+html {
+    scroll-behavior: smooth;
+}
+:root {
+    --color-bg: #f4f4f9;
+    --color-text: #333;
+    --color-header: #004b87;
+    --color-home-bg: #0057a3;
+    --color-home-text: #fff;
+    --color-card-bg: #fff;
+    --color-card-shadow: rgba(0,0,0,0.1);
+    --color-cta-bg: var(--color-header);
+    --color-cta-hover: #003b6d;
+    --color-footer-bg: #333;
+    --color-footer-text: #fff;
+    --color-faq-bg: #fff;
+    --color-faq-details-bg: #f1f1f1;
+    --color-galeria-bg: #e8f0fe;
+    --color-estatisticas-bg: #f0f8ff;
+    --color-depoimentos-bg: #e0f7ff;
+    --color-form-bg: #fff;
+    --color-form-shadow: rgba(0, 0, 0, 0.1);
+    --color-form-label: #333;
+    --color-form-input-bg: #fff;
+    --color-form-input-border: #ccc;
+    --color-form-input-text: #333;
+    --color-form-button-bg: var(--color-header);
+    --color-form-button-hover: #0cc3e4;
+}
+body {
+    min-height: 100vh;
+    background: url('assets/fundo-login.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+}
+.body-blur::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(6px);
+    z-index: 0;
+}
+.admin-login, .admin-panel {
+    position: relative;
+    z-index: 1;
+    max-width: 400px;
+    margin: 60px auto;
+    background: rgba(255,255,255,0.35);
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.13);
+    padding: 36px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255,255,255,0.35);
+}
+.admin-login h2 {
+    margin-bottom: 24px;
+    color: #004b87;
+}
+.admin-login input {
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #004b87;
+    width: 100%;
+    margin-bottom: 18px;
+    font-size: 17px;
+    background: #f4f8ff;
+    color: #222;
+    outline: none;
+    transition: border 0.2s;
+}
+.admin-login input:focus {
+    border: 2px solid #ffd700;
+}
+.cta-button {
+    background: #004b87;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 32px;
+    font-weight: bold;
+    font-size: 17px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s, color 0.2s;
+}
+.cta-button:hover {
+    background: #ffd700;
+    color: #004b87;
+}
+.cta-button:active {
+    transform: scale(0.96);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    transition: transform 0.08s, box-shadow 0.08s;
+}
+#loginErro {
+    color: #c00;
+    margin-top: 10px;
+    text-align: center;
+}
+img {
+    height: 20px;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start;
+    width: auto;
+}
+header {
+    background-color: var(--color-header);
+    padding: 20px;
+    color: var(--color-footer-text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+header .logo h1 {
+    font-size: 24px;
+    text-align: center;
+    width: 100%;
+    margin: 0 auto;
+}
+.logo-pmesp {
+    height: 32px;
+    margin: 0 0 0 8px;
+}
+header nav ul {
+    list-style-type: none;
+    display: flex;
+    gap: 20px;
+}
+header nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+header nav ul li a:hover {
+    color: #ac9411;
+}
+nav ul li a.active {
+    color: #ffd700;
+    font-weight: bold;
+}
+nav {
+    margin-left: 20px;
+}
+.home {
+    background-color: var(--color-home-bg);
+    color: var(--color-home-text);
+    padding: 60px 20px;
+    text-align: center;
+}
+.home h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+.home p {
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+.denunciar, .acompanhar, .contato {
+    padding: 40px 20px;
+    text-align: center;
+}
+.denunciar form {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: var(--color-form-bg);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px var(--color-form-shadow);
+}
+.denunciar label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--color-form-label);
+}
+.denunciar input, .denunciar textarea, .denunciar select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid var(--color-form-input-border);
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: var(--color-form-input-bg);
+    color: var(--color-form-input-text);
+}
+.denunciar button {
+    background-color: var(--color-form-button-bg);
+    color: #fff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.denunciar button:hover {
+    background-color: var(--color-form-button-hover);
+}
+footer {
+    background-color: var(--color-footer-bg);
+    color: var(--color-footer-text);
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+}
+#typed-text {
+    font-size: 18px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow: hidden;
+}
+.galeria {
+    padding: 40px 20px;
+    background-color: var(--color-galeria-bg);
+    text-align: center;
+}
+.galeria h2 {
+    color: #fff !important;
+}
+.carousel {
+    width: 100%;
+    max-width: 600px;
+    overflow: hidden;
+    margin: 40px auto;
+    border-radius: 20px;
+}
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    transform: translateX(0);
+}
+.carousel-track img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: 20px;
+    display: block;
+}
+.faq {
+    background-color: var(--color-faq-bg);
+    padding: 40px 20px;
+    text-align: center;
+}
+.faq h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.faq details {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: var(--color-faq-details-bg);
+    border-radius: 8px;
+    cursor: pointer;
+}
+.estatisticas {
+    padding: 40px 20px;
+    background-color: var(--color-estatisticas-bg);
+    text-align: center;
+}
+.cards {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.card {
+    background-color: var(--color-card-bg);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px var(--color-card-shadow);
+    flex: 1;
+    min-width: 200px;
+}
+.depoimentos {
+    padding: 40px 20px;
+    background-color: var(--color-depoimentos-bg);
+    text-align: center;
+}
+.depoimentos blockquote {
+    font-style: italic;
+    margin: 20px auto;
+    max-width: 600px;
+    border-left: 5px solid #004b87;
+    padding-left: 15px;
+    color: #333;
+}
+.menu-toggle {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: none;
+    z-index: 1001;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.acompanhar {
+    padding: 40px 20px;
+    text-align: center;
+    background: #f8fbff;
+}
+.acompanhar form {
+    max-width: 400px;
+    margin: 0 auto 20px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.acompanhar input {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+.status-protocolo {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #004b87;
+    min-height: 24px;
+}
+.noticias {
+    padding: 40px 20px;
+    background: #f4f8ff;
+    text-align: center;
+}
+.noticias-lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+}
+.noticia-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 20px;
+    max-width: 320px;
+    min-width: 220px;
+    flex: 1 1 220px;
+    text-align: left;
+}
+.noticia-card h3 {
+    margin-bottom: 8px;
+    color: #004b87;
+    font-size: 20px;
+}
+.noticia-card .data {
+    font-size: 13px;
+    color: #888;
+    display: block;
+    margin-bottom: 10px;
+}
+#protocoloGerado span {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #003366;
+    letter-spacing: 2px;
+    background: #eaf3ff;
+    padding: 4px 16px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+#denunciaForm {
+    opacity: 0;
+    transform: translateY(-30px);
+    pointer-events: none;
+    transition: opacity 0.4s, transform 0.4s;
+    height: 0;
+    overflow: hidden;
+}
+#denunciaForm.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    height: auto;
+    overflow: visible;
+}
+.form-spinner {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border: 3px solid #eee;
+    border-top: 3px solid #00bfff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+}
+/* Responsividade geral para smartphones */
+@media (max-width: 700px) {
+    body, html {
+        font-size: 15px;
+    }
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+    }
+    .logo {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        gap: 8px;
+    }
+    .logo h1 {
+        font-size: 18px;
+        text-align: center;
+        width: 100%;
+        margin: 0 auto;
+    }
+    .logo-pmesp {
+        height: 24px;
+        margin: 0 0 0 6px;
+    }
+    .menu-toggle {
+        display: block;
+        position: static;
+        color: #fff;
+        margin-left: 10px;
+        margin-right: 0;
+    }
+    nav {
+        width: 100%;
+    }
+    .nav-menu {
+        flex-direction: column;
+        align-items: flex-start;
+        background: var(--color-header);
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100vw;
+        padding: 0 0 0 0;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        pointer-events: none;
+        transition: max-height 0.4s cubic-bezier(.4,1.3,.6,1), opacity 0.3s;
+    }
+    .nav-menu.active {
+        padding: 20px 0 10px 0;
+        max-height: 400px;
+        opacity: 1;
+        pointer-events: auto;
+        transition: max-height 0.4s cubic-bezier(.4,1.3,.6,1), opacity 0.3s;
+    }
+    .nav-menu ul {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        padding-left: 0;
+    }
+    .nav-menu li, .nav-menu .cta-button {
+        width: 100%;
+        text-align: left;
+    }
+    .nav-menu .cta-button {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+    .cta-button {
+        width: 100%;
+        margin: 10px 0 0 0;
+    }
+    .cards {
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+    }
+    .card {
+        min-width: 120px;
+        padding: 12px;
+        font-size: 15px;
+    }
+    .estatisticas, .denunciar, .acompanhar, .faq, .depoimentos, .noticias, .contato {
+        padding: 18px 5px;
+    }
+    .denunciar form, .acompanhar form, .noticia-card, .card, .admin-panel {
+        max-width: 98vw;
+        padding: 16px 6vw;
+        font-size: 15px;
+    }
+    .noticias-lista {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+    .noticia-card {
+        max-width: 100%;
+        min-width: 0;
+    }
+    .carousel, .carousel-track img {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 140px !important;
+        aspect-ratio: 16/9;
+    }
+    .depoimentos blockquote {
+        font-size: 15px;
+        padding-left: 8px;
+    }
+    footer {
+        font-size: 12px;
+        padding: 10px;
+    }
+}
+@media (max-width: 500px) {
+    .home h2 {
+        font-size: 22px;
+    }
+    .home p, #typed-text {
+        font-size: 15px;
+    }
+    .carousel {
+        width: 100%;
+        max-width: 100vw;
+    }
+    .carousel-track img {
+        width: 100%;
+        max-width: 100vw;
+        height: auto;
+        aspect-ratio: 16/9;
+    }
+    .depoimentos blockquote {
+        font-size: 15px;
+        padding-left: 8px;
+    }
+    .denunciar form, .faq, .estatisticas, .galeria, .depoimentos, .contato {
+        padding: 15px 5px;
+    }
+    .card {
+        min-width: 120px;
+        padding: 10px;
+    }
+    footer {
+        font-size: 12px;
+        padding: 10px;
+    }
+}

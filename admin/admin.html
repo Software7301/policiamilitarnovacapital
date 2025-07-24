@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Ouvidoria PM NC</title>
+    <link rel="shortcut icon" href="assets/admin.png" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="admin-login" id="adminLogin">
+        <h2>Painel</h2>
+        <input type="password" id="adminSenha" placeholder="Digite a senha de administrador">
+        <button class="cta-button" id="entrarAdmin">Entrar</button>
+        <div id="loginErro" style="color: #c00; margin-top: 10px;"></div>
+    </div>
+    <div class="admin-panel" id="adminPanel" style="display:none;">
+        <h2>Denúncias Recebidas</h2>
+        <div id="listaDenuncias"></div>
+        <button class="logout-btn" id="logoutAdmin">Sair</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
+
+
