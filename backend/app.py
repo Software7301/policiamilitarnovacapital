@@ -43,6 +43,16 @@ def init_db():
                 finalizada_em TEXT
             )
         ''')
+        
+        db.execute('''
+            CREATE TABLE IF NOT EXISTS noticias (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                titulo TEXT NOT NULL,
+                conteudo TEXT NOT NULL,
+                imagem_url TEXT,
+                data_publicacao TEXT NOT NULL
+            )
+        ''')
 init_db()
 
 @app.route('/')
@@ -132,6 +142,23 @@ def deletar_denuncia(protocolo):
     db.execute('DELETE FROM denuncias WHERE protocolo = ?', (protocolo,))
     db.commit()
     return jsonify({'ok': True, 'message': 'Denúncia deletada com sucesso'})
+
+# Endpoints para notícias
+@app.route('/api/noticias', methods=['GET'])
+def listar_noticias():
+    db = get_db()
+    noticias = db.execute('SELECT * FROM noticias ORDER BY data_publicacao DESC').fetchall()
+    return jsonify([dict(n) for n in noticias])
+
+@app.route('/api/noticias', methods=['POST'])
+def criar_noticia():
+    data = request.json
+    db = get_db()
+    
+    db.execute('INSERT INTO noticias (titulo, conteudo, imagem_url, data_publicacao) VALUES (?, ?, ?, ?)',
+               (data.get('titulo'), data.get('conteudo'), data.get('imagem_url'), datetime.datetime.utcnow().isoformat()))
+    db.commit()
+    return jsonify({'ok': True, 'message': 'Notícia criada com sucesso'}), 201
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
