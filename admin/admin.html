@@ -15,8 +15,21 @@
         <div id="loginErro" style="color: #c00; margin-top: 10px;"></div>
     </div>
     <div class="admin-panel" id="adminPanel" style="display:none;">
-        <h2>Denúncias Recebidas</h2>
-        <div id="listaDenuncias"></div>
+        <div class="admin-tabs">
+            <button class="tab-button active" data-tab="denuncias">Denúncias</button>
+            <button class="tab-button" data-tab="coe">Interessados COE</button>
+        </div>
+        
+        <div class="tab-content active" id="denuncias-tab">
+            <h2>Denúncias Recebidas</h2>
+            <div id="listaDenuncias"></div>
+        </div>
+        
+        <div class="tab-content" id="coe-tab">
+            <h2>Interessados no COE</h2>
+            <div id="listaInteressadosCOE"></div>
+        </div>
+        
         <button class="logout-btn" id="logoutAdmin">Sair</button>
     </div>
     <script src="script.js"></script>

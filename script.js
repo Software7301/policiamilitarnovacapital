@@ -3,211 +3,200 @@
     emailjs.init("j5NUxYV1wKXAIsRuI");
 })();
 
-const form = document.getElementById('denunciaForm');
-const nomeInput = document.getElementById("nome");
-const rgInput = document.getElementById("rg");
-const youtubeInput = document.getElementById("linkYoutube");
-const descricaoInput = document.getElementById("descricao");
-const tipoSelect = document.getElementById("tipo");
-const submitBtn = form.querySelector("button[type='submit']");
+// Verificar se estamos na página de denúncia
+const isDenunciaPage = window.location.pathname.includes('denunciar.html');
 
-document.getElementById('showFormButton').addEventListener('click', function() {
-    form.classList.add('show');
-    this.style.display = 'none';
-});
+// Elementos do formulário
+let form, formLoading, formSuccess, protocoloNumero;
 
+if (isDenunciaPage) {
+    // Elementos específicos da página de denúncia
+    form = document.getElementById('denunciaForm');
+    formLoading = document.getElementById('formLoading');
+    formSuccess = document.getElementById('formSuccess');
+    protocoloNumero = document.getElementById('protocoloNumero');
+    
+    // Validação de campos
 function validarCampos() {
-    let valido = true;
-    const nomeValido = nomeInput.value.trim() === "" || /^[A-Za-zÀ-ú\s]*$/.test(nomeInput.value);
-    nomeInput.style.borderColor = nomeValido ? "green" : "red";
-    if (!nomeValido) valido = false;
-    const linkValido = youtubeInput.value.startsWith("https://youtu.be/");
-    youtubeInput.style.borderColor = linkValido ? "green" : "red";
-    if (!linkValido) valido = false;
-    const descricaoValida = descricaoInput.value.trim().length >= 15;
-    descricaoInput.style.borderColor = descricaoValida ? "green" : "red";
-    if (!descricaoValida) valido = false;
-    submitBtn.disabled = !valido;
-}
-[nomeInput, youtubeInput, descricaoInput].forEach(el => {
-    el.addEventListener("input", validarCampos);
-});
-
-form.addEventListener("submit", async function(event) {
-    event.preventDefault();
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = 'Enviando... <span class="form-spinner"></span>';
-    await new Promise(res => setTimeout(res, 3500));
-    const data = {
-        nome: nomeInput.value,
-        rg: rgInput.value,
-        tipo: tipoSelect.value,
-        descricao: descricaoInput.value,
-        youtube: youtubeInput.value
-    };
-    const resumo = `Confirme os dados antes de enviar:\n\n` +
-                   `🗾 Tipo: ${tipoSelect.value.toUpperCase()}\n` +
-                   `📃 Descrição: ${descricaoInput.value}\n` +
-                   `📺 Link YouTube: ${youtubeInput.value}`;
-    if (!confirm(resumo)) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Enviar';
+        const rg = document.getElementById('rg').value;
+        const tipo = document.getElementById('tipo').value;
+        const descricao = document.getElementById('descricao').value;
+        
+        if (!rg || !tipo || !descricao) {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+            return false;
+        }
+        return true;
+    }
+    
+    // Event listener para o formulário
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!validarCampos()) {
         return;
     }
-    try {
-        const resp = await fetch('https://policiamilitarnovacapital-production.up.railway.app/api/denuncias', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            
+            // Simular envio
+            form.style.display = 'none';
+            formLoading.style.display = 'block';
+            
+            setTimeout(() => {
+                formLoading.style.display = 'none';
+                formSuccess.style.display = 'block';
+                
+                // Gerar número de protocolo
+                const protocolo = Math.floor(Math.random() * 9000) + 1000;
+                protocoloNumero.textContent = protocolo;
+            }, 2000);
         });
-        if (!resp.ok) throw new Error('Erro ao enviar denúncia');
-        const result = await resp.json();
-        alert(`✅ Sua solicitação foi enviada com sucesso!\n\nSeu protocolo: ${result.protocolo}\nGuarde este número para acompanhar sua denúncia.`);
-        exibirProtocoloNaTela(result.protocolo);
-        form.reset();
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = 'Enviar';
-        form.classList.remove('show');
-        document.getElementById('showFormButton').style.display = 'inline-block';
-    } catch (err) {
-        alert('❌ Ocorreu um erro ao enviar. Tente novamente.');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Enviar';
     }
-});
-
-function exibirProtocoloNaTela(protocolo) {
-    let div = document.getElementById('protocoloGerado');
-    if (!div) {
-        div = document.createElement('div');
-        div.id = 'protocoloGerado';
-        div.style.margin = '20px auto';
-        div.style.maxWidth = '600px';
-        div.style.background = '#e8f4ff';
-        div.style.border = '1.5px solid #004b87';
-        div.style.borderRadius = '8px';
-        div.style.padding = '16px';
-        div.style.fontWeight = 'bold';
-        div.style.color = '#004b87';
-        div.style.textAlign = 'center';
-        form.parentNode.insertBefore(div, form.nextSibling);
+    
+    // Formulário de acompanhamento
+    const acompanharForm = document.getElementById('acompanharForm');
+    const statusProtocolo = document.getElementById('statusProtocolo');
+    
+    if (acompanharForm) {
+        acompanharForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const protocolo = document.getElementById('protocolo').value;
+            
+            if (!protocolo) {
+                alert('Por favor, digite o número do protocolo.');
+                return;
+            }
+            
+            // Simular consulta
+            const statuses = [
+                'Em análise',
+                'Em andamento',
+                'Concluído',
+                'Arquivado'
+            ];
+            
+            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            
+            statusProtocolo.innerHTML = `
+                <div class="status-info">
+                    <strong>Protocolo ${protocolo}</strong><br>
+                    Status: <span class="status-${randomStatus.toLowerCase().replace(' ', '-')}">${randomStatus}</span>
+                </div>
+            `;
+        });
     }
-    div.innerHTML = `Seu protocolo: <span style='font-family:monospace;'>${protocolo}</span><br><small>Guarde este número para acompanhar sua denúncia.</small>`;
-}
-
-const text = "Nosso objetivo é garantir que suas denúncias, sugestões e elogios sejam ouvidos e tratados com seriedade. Sua voz é fundamental para a melhoria contínua da segurança pública.";
-const typedText = document.getElementById("typed-text");
+} else {
+    // Funcionalidades para a página principal
+    const typedText = document.getElementById('typed-text');
+    
+    if (typedText) {
+        const text = "Sua voz é importante para nós. Faça sua denúncia de forma segura e confidencial.";
 let index = 0;
-function typeEffect() {
+        
+        function typeWriter() {
     if (index < text.length) {
         typedText.innerHTML += text.charAt(index);
         index++;
-        setTimeout(typeEffect, 35);
-    }
-}
-document.addEventListener("DOMContentLoaded", typeEffect);
-
-function iniciarCarrossel() {
-    const track = document.querySelector(".carousel-track");
-    const slides = track.children;
-    const total = slides.length;
-    let current = 0;
-    let slideWidth = slides[0].getBoundingClientRect().width;
-    function updateSlideWidth() {
-        slideWidth = slides[0].getBoundingClientRect().width;
-    }
-    window.addEventListener('resize', () => {
-        updateSlideWidth();
-        track.style.transition = "none";
-        track.style.transform = `translateX(${-current * slideWidth}px)`;
-    });
-    setInterval(() => {
-        updateSlideWidth();
-        current++;
-        if (current > total) {
-            track.style.transition = "none";
-            track.style.transform = `translateX(0px)`;
-            current = 1;
-            void track.offsetWidth;
-            track.style.transition = "transform 0.5s ease-in-out";
-            track.style.transform = `translateX(${-current * slideWidth}px)`;
-        } else if (current === total) {
-            const firstClone = slides[0].cloneNode(true);
-            track.appendChild(firstClone);
-            track.style.transition = "transform 0.5s ease-in-out";
-            track.style.transform = `translateX(${-current * slideWidth}px)`;
-            track.addEventListener("transitionend", function reset() {
-                track.style.transition = "none";
-                track.style.transform = `translateX(0px)`;
-                current = 0;
-                track.removeChild(firstClone);
-                track.removeEventListener("transitionend", reset);
-            });
-        } else {
-            track.style.transition = "transform 0.5s ease-in-out";
-            track.style.transform = `translateX(${-current * slideWidth}px)`;
+                setTimeout(typeWriter, 50);
+            }
         }
-    }, 4000);
+        
+        // Iniciar a animação quando a página carregar
+        window.addEventListener('load', typeWriter);
+    }
 }
-document.addEventListener("DOMContentLoaded", iniciarCarrossel);
 
-function setTheme(isDark) {
-    document.body.classList.toggle('dark-mode', isDark);
-    const btn = document.getElementById('theme-toggle');
-    if (btn) {
-        btn.textContent = isDark ? '☀️ Tema Claro' : '🌙 Tema Escuro';
-    }
-}
-function loadTheme() {
-    const saved = localStorage.getItem('theme');
-    setTheme(saved === 'dark');
-}
+// Funcionalidades globais
 document.addEventListener('DOMContentLoaded', function() {
-    loadTheme();
-    const btn = document.getElementById('theme-toggle');
-    if (btn) {
-        btn.addEventListener('click', function() {
-            const isDark = !document.body.classList.contains('dark-mode');
-            setTheme(isDark);
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
-    }
+    // Menu toggle para mobile
     const menuToggle = document.getElementById('menu-toggle');
     const navMenu = document.querySelector('.nav-menu');
+    
     if (menuToggle && navMenu) {
         menuToggle.addEventListener('click', function() {
             navMenu.classList.toggle('active');
         });
-        navMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                navMenu.classList.remove('active');
-            });
+    }
+    
+    // Player de galeria (simulado)
+    const playBtn = document.querySelector('.play-btn');
+    if (playBtn) {
+        playBtn.addEventListener('click', function() {
+            // Simular reprodução das imagens
+            alert('Galeria de imagens da PM - Funcionalidade em desenvolvimento');
         });
     }
-});
+    
 
-document.addEventListener('DOMContentLoaded', function() {
-    const formAcompanhar = document.getElementById('acompanharForm');
-    const statusDiv = document.getElementById('statusProtocolo');
-    if (formAcompanhar && statusDiv) {
-        formAcompanhar.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const protocolo = document.getElementById('protocolo').value.trim();
-            try {
-                const resp = await fetch(`https://policiamilitarnovacapital-production.up.railway.app/api/denuncias/${protocolo}`);
-                if (!resp.ok) throw new Error('Protocolo não encontrado');
-                const denuncia = await resp.json();
-                let html = `Status: <b>${denuncia.status}</b><br>Tipo: ${denuncia.tipo}`;
-                if (denuncia.status === 'Finalizada') {
-                    html += `<br><span style='color:#008000;font-weight:bold;'>O policial será punido</span>`;
-                }
-                statusDiv.innerHTML = html;
-            } catch {
-                statusDiv.innerHTML = 'Protocolo não encontrado. Verifique o número digitado.';
+    
+    // Search functionality
+    const searchInput = document.querySelector('.search-input');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                // Simular busca
+                alert('Funcionalidade de busca em desenvolvimento');
             }
         });
     }
+    
+    // Bottom navigation
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const text = this.querySelector('.nav-text').textContent;
+            
+            switch(text) {
+                case 'Início':
+                    // Mostra a seção de atuação e esconde a de denúncia
+                    const atuacaoSection = document.getElementById('atuacao-section');
+                    const denunciaSection = document.getElementById('denuncia-section');
+                    if (atuacaoSection && denunciaSection) {
+                        atuacaoSection.style.display = 'block';
+                        denunciaSection.style.display = 'none';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                    break;
+                case 'Denunciar':
+                    // Redireciona para o formulário independente
+                    window.location.href = 'formulario/index.html';
+                    break;
+                case 'Notícias':
+                    window.location.href = 'noticias.html';
+                    break;
+                case 'Painel Admin':
+                    window.open('admin/admin.html', '_blank');
+                    break;
+            }
+        });
+    });
+    
+    // Login button
+    const loginBtn = document.querySelector('.login-btn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', function() {
+            window.open('admin/admin.html', '_blank');
+        });
+    }
+    
+
 });
+
+// Tema escuro/claro (mantido para compatibilidade)
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+}
+
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+}
+
+// Carregar tema ao inicializar
+loadTheme();
 
 
 

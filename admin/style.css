@@ -76,6 +76,45 @@ body {
     margin-top: 10px;
     text-align: center;
 }
+
+/* Estilos para as abas */
+.admin-tabs {
+    display: flex;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e0e0e0;
+    width: 100%;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    color: #004b87;
+}
+
+.tab-button.active {
+    color: #004b87;
+    border-bottom-color: #004b87;
+}
+
+.tab-content {
+    display: none;
+    width: 100%;
+}
+
+.tab-content.active {
+    display: block;
+}
+
 .denuncia-admin {
     border: 1px solid #004b87;
     border-radius: 8px;
@@ -132,7 +171,7 @@ body {
     font-size: 1.5rem;
     margin-bottom: 24px;
 }
-#listaDenuncias {
+#listaDenuncias, #listaInteressadosCOE {
     width: 100%;
     font-size: 1rem;
 }
