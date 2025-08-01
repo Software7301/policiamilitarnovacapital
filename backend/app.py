@@ -49,7 +49,7 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 titulo TEXT NOT NULL,
                 conteudo TEXT NOT NULL,
-                imagem_url TEXT,
+                fotos TEXT,
                 data_publicacao TEXT NOT NULL
             )
         ''')
@@ -155,8 +155,8 @@ def criar_noticia():
     data = request.json
     db = get_db()
     
-    db.execute('INSERT INTO noticias (titulo, conteudo, imagem_url, data_publicacao) VALUES (?, ?, ?, ?)',
-               (data.get('titulo'), data.get('conteudo'), data.get('imagem_url'), datetime.datetime.utcnow().isoformat()))
+    db.execute('INSERT INTO noticias (titulo, conteudo, fotos, data_publicacao) VALUES (?, ?, ?, ?)',
+               (data.get('titulo'), data.get('conteudo'), data.get('fotos'), datetime.datetime.utcnow().isoformat()))
     db.commit()
     return jsonify({'ok': True, 'message': 'Notícia criada com sucesso'}), 201
 
