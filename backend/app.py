@@ -160,6 +160,19 @@ def criar_noticia():
     db.commit()
     return jsonify({'ok': True, 'message': 'Notícia criada com sucesso'}), 201
 
+@app.route('/api/noticias/<int:noticia_id>', methods=['DELETE'])
+def deletar_noticia(noticia_id):
+    db = get_db()
+    # Verifica se a notícia existe
+    noticia = db.execute('SELECT * FROM noticias WHERE id = ?', (noticia_id,)).fetchone()
+    if not noticia:
+        return jsonify({'error': 'Notícia não encontrada'}), 404
+    
+    # Deleta a notícia
+    db.execute('DELETE FROM noticias WHERE id = ?', (noticia_id,))
+    db.commit()
+    return jsonify({'ok': True, 'message': 'Notícia deletada com sucesso'})
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=False, host='0.0.0.0', port=port)
