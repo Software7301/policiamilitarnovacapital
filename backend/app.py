@@ -53,6 +53,7 @@ def init_db():
                 data_publicacao TEXT NOT NULL
             )
         ''')
+        db.commit()
 init_db()
 
 @app.route('/')
@@ -152,13 +153,63 @@ def listar_noticias():
 
 @app.route('/api/noticias', methods=['POST'])
 def criar_noticia():
-    data = request.json
-    db = get_db()
-    
-    db.execute('INSERT INTO noticias (titulo, conteudo, fotos, data_publicacao) VALUES (?, ?, ?, ?)',
-               (data.get('titulo'), data.get('conteudo'), data.get('fotos'), datetime.datetime.utcnow().isoformat()))
-    db.commit()
-    return jsonify({'ok': True, 'message': 'Notícia criada com sucesso'}), 201
+    try:
+        print("=== INICIANDO CRIAÇÃO DE NOTÍCIA ===", file=sys.stderr)
+        
+        # Verificar se há dados JSON
+        if not request.is_json:
+            print("Erro: Não é JSON", file=sys.stderr)
+            return jsonify({'error': 'Content-Type deve ser application/json'}), 400
+        
+        data = request.get_json()
+        print(f"Dados recebidos: {data}", file=sys.stderr)
+        
+        # Validar dados obrigatórios
+        titulo = data.get('titulo', '').strip()
+        conteudo = data.get('conteudo', '').strip()
+        
+        if not titulo or not conteudo:
+            print(f"Erro: Título='{titulo}', Conteúdo='{conteudo}'", file=sys.stderr)
+            return jsonify({'error': 'Título e conteúdo são obrigatórios'}), 400
+        
+        # Processar fotos
+        fotos = data.get('fotos')
+        if fotos:
+            if isinstance(fotos, list):
+                fotos = ','.join(fotos)
+            print(f"Fotos recebidas: {fotos}", file=sys.stderr)
+        else:
+            fotos = None
+            print("Nenhuma foto fornecida", file=sys.stderr)
+        
+        # Conectar ao banco
+        db = get_db()
+        
+        # Inserir notícia
+        cursor = db.execute('''
+            INSERT INTO noticias (titulo, conteudo, fotos, data_publicacao) 
+            VALUES (?, ?, ?, ?)
+        ''', (titulo, conteudo, fotos, datetime.datetime.utcnow().isoformat()))
+        
+        # Commit da transação
+        db.commit()
+        
+        # Obter ID da notícia criada
+        noticia_id = cursor.lastrowid
+        
+        print(f"Notícia criada com sucesso! ID: {noticia_id}", file=sys.stderr)
+        
+        return jsonify({
+            'ok': True, 
+            'message': 'Notícia criada com sucesso',
+            'id': noticia_id
+        }), 201
+        
+    except Exception as e:
+        print(f"ERRO CRÍTICO ao criar notícia: {e}", file=sys.stderr)
+        import traceback
+        print(f"Stack trace completo: {traceback.format_exc()}", file=sys.stderr)
+        return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/api/noticias/<int:noticia_id>', methods=['DELETE'])
 def deletar_noticia(noticia_id):
