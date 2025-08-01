@@ -12,7 +12,6 @@ except Exception as e:
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
-# Configuração adicional do CORS
 @app.after_request
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -44,21 +43,6 @@ def init_db():
                 finalizada_em TEXT
             )
         ''')
-        
-        # Nova tabela para interessados no COE
-        db.execute('''
-            CREATE TABLE IF NOT EXISTS interessados_coe (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                protocolo TEXT UNIQUE,
-                nome TEXT,
-                rg TEXT,
-                telefone TEXT,
-                horario TEXT,
-                motivo TEXT,
-                data_cadastro TEXT,
-                status TEXT DEFAULT 'Pendente'
-            )
-        ''')
 init_db()
 
 @app.route('/')
@@ -73,7 +57,6 @@ def test():
 def criar_denuncia():
     data = request.json
     
-    # Processar tipo de solicitação
     tipo_input = data.get('tipo', '').strip()
     tipo_mapping = {
         '1': 'Denúncia',
@@ -96,40 +79,6 @@ def criar_denuncia():
                (protocolo, data.get('nome'), data.get('rg'), tipo, data.get('descricao'), data.get('youtube'), 'Em análise', None))
     db.commit()
     return jsonify({'protocolo': protocolo}), 201
-
-@app.route('/api/interessados-coe', methods=['POST'])
-def criar_interessado_coe():
-    data = request.json
-    db = get_db()
-    cur = db.execute('SELECT COUNT(*) FROM interessados_coe')
-    count = cur.fetchone()[0] + 1
-    protocolo = f"COE{str(count).zfill(4)}"
-    data_cadastro = datetime.datetime.utcnow().isoformat()
-    
-    db.execute('''
-        INSERT INTO interessados_coe (protocolo, nome, rg, telefone, horario, motivo, data_cadastro, status) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (protocolo, data.get('nome'), data.get('rg'), data.get('telefone'), 
-          data.get('horario'), data.get('motivo'), data_cadastro, 'Pendente'))
-    db.commit()
-    return jsonify({'protocolo': protocolo}), 201
-
-@app.route('/api/interessados-coe', methods=['GET'])
-def listar_interessados_coe():
-    db = get_db()
-    interessados = db.execute('SELECT * FROM interessados_coe ORDER BY data_cadastro DESC').fetchall()
-    result = []
-    for i in interessados:
-        result.append(dict(i))
-    return jsonify(result)
-
-@app.route('/api/interessados-coe/<protocolo>', methods=['PATCH'])
-def atualizar_status_interessado(protocolo):
-    status = request.json.get('status')
-    db = get_db()
-    db.execute('UPDATE interessados_coe SET status = ? WHERE protocolo = ?', (status, protocolo))
-    db.commit()
-    return jsonify({'ok': True})
 
 @app.route('/api/denuncias', methods=['GET'])
 def listar_denuncias():
@@ -170,6 +119,19 @@ def buscar_por_protocolo(protocolo):
     if d:
         return jsonify(dict(d))
     return jsonify({'error': 'Protocolo não encontrado'}), 404
+
+@app.route('/api/denuncias/<protocolo>', methods=['DELETE'])
+def deletar_denuncia(protocolo):
+    db = get_db()
+    # Verifica se a denúncia existe
+    d = db.execute('SELECT * FROM denuncias WHERE protocolo = ?', (protocolo,)).fetchone()
+    if not d:
+        return jsonify({'error': 'Protocolo não encontrado'}), 404
+    
+    # Deleta a denúncia
+    db.execute('DELETE FROM denuncias WHERE protocolo = ?', (protocolo,))
+    db.commit()
+    return jsonify({'ok': True, 'message': 'Denúncia deletada com sucesso'})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
