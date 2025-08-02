@@ -172,11 +172,9 @@ def criar_noticia():
             print(f"Erro: Título='{titulo}', Conteúdo='{conteudo}'", file=sys.stderr)
             return jsonify({'error': 'Título e conteúdo são obrigatórios'}), 400
         
-        # Processar fotos
+        # Processar fotos de forma segura
         fotos = data.get('fotos')
         if fotos:
-            if isinstance(fotos, list):
-                fotos = ','.join(fotos)
             print(f"Fotos recebidas: {fotos}", file=sys.stderr)
         else:
             fotos = None
@@ -223,6 +221,104 @@ def deletar_noticia(noticia_id):
     db.execute('DELETE FROM noticias WHERE id = ?', (noticia_id,))
     db.commit()
     return jsonify({'ok': True, 'message': 'Notícia deletada com sucesso'})
+
+@app.route('/test-noticias')
+def test_noticias():
+    try:
+        db = get_db()
+        
+        # Verificar se a tabela existe
+        cursor = db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='noticias'")
+        table_exists = cursor.fetchone()
+        
+        if not table_exists:
+            return jsonify({'error': 'Tabela noticias não existe'}), 500
+        
+        # Verificar estrutura da tabela
+        cursor = db.execute("PRAGMA table_info(noticias)")
+        columns = cursor.fetchall()
+        
+        # Tentar inserir uma notícia de teste
+        cursor = db.execute('''
+            INSERT INTO noticias (titulo, conteudo, fotos, data_publicacao) 
+            VALUES (?, ?, ?, ?)
+        ''', ('Teste', 'Conteúdo teste', None, datetime.datetime.utcnow().isoformat()))
+        
+        db.commit()
+        noticia_id = cursor.lastrowid
+        
+        return jsonify({
+            'ok': True,
+            'message': 'Teste bem-sucedido',
+            'table_exists': True,
+            'columns': [dict(col) for col in columns],
+            'test_noticia_id': noticia_id
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'table_exists': table_exists if 'table_exists' in locals() else False
+        }), 500
+
+@app.route('/debug-noticias')
+def debug_noticias():
+    try:
+        print("=== DEBUG NOTÍCIAS ===", file=sys.stderr)
+        
+        db = get_db()
+        
+        # Verificar estrutura da tabela
+        cursor = db.execute("PRAGMA table_info(noticias)")
+        columns = cursor.fetchall()
+        print(f"Colunas da tabela: {columns}", file=sys.stderr)
+        
+        # Verificar dados existentes
+        cursor = db.execute("SELECT * FROM noticias ORDER BY id DESC LIMIT 5")
+        noticias = cursor.fetchall()
+        print(f"Notícias existentes: {noticias}", file=sys.stderr)
+        
+        return jsonify({
+            'ok': True,
+            'columns': [dict(col) for col in columns],
+            'noticias': [dict(noticia) for noticia in noticias]
+        })
+        
+    except Exception as e:
+        print(f"ERRO no debug: {e}", file=sys.stderr)
+        import traceback
+        print(f"Stack trace: {traceback.format_exc()}", file=sys.stderr)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/check-table')
+def check_table():
+    try:
+        db = get_db()
+        
+        # Verificar se a tabela existe
+        cursor = db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='noticias'")
+        table_exists = cursor.fetchone()
+        
+        if not table_exists:
+            return jsonify({'error': 'Tabela noticias não existe'}), 500
+        
+        # Verificar estrutura da tabela
+        cursor = db.execute("PRAGMA table_info(noticias)")
+        columns = cursor.fetchall()
+        
+        # Verificar dados existentes
+        cursor = db.execute("SELECT COUNT(*) FROM noticias")
+        count = cursor.fetchone()[0]
+        
+        return jsonify({
+            'ok': True,
+            'table_exists': True,
+            'columns': [dict(col) for col in columns],
+            'total_noticias': count
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
