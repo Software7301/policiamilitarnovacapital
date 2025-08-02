@@ -101,13 +101,9 @@ async function sendToDatabase(responses) {
       dataCriacao: new Date().toISOString()
     };
     
-    // Enviar APENAS para o servidor (sem localStorage)
+    // Enviar APENAS para o servidor Render
     const urls = [
-      'https://policiamilitarnovacapital.onrender.com/api/denuncias',
-      'https://policiamilitarnovacapital.onrender.com/',
-      'http://localhost:5000/api/denuncias',
-      'http://127.0.0.1:5000/api/denuncias',
-      'http://localhost:8000/api/denuncias'
+      'https://policiamilitarnovacapital.onrender.com/api/denuncias'
     ];
     
     let response = null;
@@ -166,11 +162,7 @@ async function buscarProtocolo(protocolo) {
     console.log('Buscando protocolo no servidor...');
     
     const urls = [
-      'https://policiamilitarnovacapital.onrender.com/api/denuncias',
-      'https://policiamilitarnovacapital.onrender.com/',
-      'http://localhost:5000/api/denuncias',
-      'http://127.0.0.1:5000/api/denuncias',
-      'http://localhost:8000/api/denuncias'
+      'https://policiamilitarnovacapital.onrender.com/api/denuncias'
     ];
     
     for (const url of urls) {

@@ -27,11 +27,18 @@ Sistema completo de ouvidoria para a Polícia Militar, permitindo denúncias, el
 
 ## 🚀 Como Executar
 
-### Pré-requisitos
+### 🌐 Servidor Online (Produção)
+
+O projeto está hospedado no **Render.com** e pode ser acessado em:
+**https://policiamilitarnovacapital.onrender.com**
+
+### 💻 Desenvolvimento Local
+
+#### Pré-requisitos
 - Python 3.8+
 - pip (gerenciador de pacotes Python)
 
-### Instalação
+#### Instalação
 
 1. **Clone o repositório**
 ```bash
@@ -53,18 +60,19 @@ source venv/bin/activate
 pip install -r src/backend/requirements.txt
 ```
 
-4. **Execute o backend**
+4. **Execute o backend (opcional)**
 ```bash
 cd src/backend/api
 python app.py
 ```
 
 5. **Acesse o sistema**
-- **Backend API**: http://127.0.0.1:5000
 - **Frontend**: Abra `src/frontend/pages/index.html` no navegador
 - **Denúncias**: Abra `src/frontend/pages/denunciar.html` no navegador
 - **Notícias**: Abra `src/frontend/pages/noticias.html` no navegador
 - **Admin**: Abra `src/frontend/components/admin/admin.html` no navegador
+
+**Nota:** O sistema está configurado para usar apenas o servidor Render em produção.
 
 ## 🧪 Testes
 

@@ -653,10 +653,9 @@ async function carregarDenuncias() {
     try {
         console.log('Carregando denúncias do servidor...');
         
-        // Usar apenas servidor local
+        // Usar apenas servidor Render
         const urls = [
-            'http://localhost:5000/api/denuncias',
-            'http://127.0.0.1:5000/api/denuncias'
+            'https://policiamilitarnovacapital.onrender.com/api/denuncias'
         ];
         
         let todasDenuncias = [];
@@ -789,10 +788,9 @@ async function handleStatusChange(protocolo, novoStatus) {
 }
 
 async function atualizarStatusNoServidor(protocolo, novoStatus) {
-    // Usar apenas servidor local
+    // Usar apenas servidor Render
     const urls = [
-        `http://localhost:5000/api/denuncias/${protocolo}`,
-        `http://127.0.0.1:5000/api/denuncias/${protocolo}`
+        `https://policiamilitarnovacapital.onrender.com/api/denuncias/${protocolo}`
     ];
     
     for (const url of urls) {

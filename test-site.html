@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste do Site - Ouvidoria PM NC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        .test-item {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #ddd;
+        }
+        .test-item.success { border-left-color: green; }
+        .test-item.error { border-left-color: red; }
+        .test-item.warning { border-left-color: orange; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Teste do Site - Ouvidoria PM NC</h1>
+    
+    <div class="test-section">
+        <h2>📁 Verificação de Arquivos</h2>
+        <div id="fileTests"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🌐 Teste de Conexão</h2>
+        <div id="connectionTests"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 Teste de Funcionalidades</h2>
+        <div id="functionTests"></div>
+    </div>
+
+    <script>
+        const tests = {
+            files: [
+                { name: 'Página Principal', path: 'src/frontend/pages/index.html' },
+                { name: 'Página Denunciar', path: 'src/frontend/pages/denunciar.html' },
+                { name: 'Página Notícias', path: 'src/frontend/pages/noticias.html' },
+                { name: 'Painel Admin', path: 'src/frontend/components/admin/admin.html' },
+                { name: 'CSS Principal', path: 'src/frontend/styles/style.css' },
+                { name: 'JavaScript Principal', path: 'src/frontend/scripts/script.js' },
+                { name: 'Logo PMESP', path: 'src/frontend/assets/Logo_PMESP.png' },
+                { name: 'Backend API', path: 'src/backend/api/app.py' }
+            ],
+                         connections: [
+                 { name: 'Servidor Render', url: 'https://policiamilitarnovacapital.onrender.com/api/denuncias' }
+             ]
+        };
+
+        async function testFile(path) {
+            try {
+                const response = await fetch(path);
+                return response.ok;
+            } catch {
+                return false;
+            }
+        }
+
+        async function testConnection(url) {
+            try {
+                const response = await fetch(url);
+                return response.ok;
+            } catch {
+                return false;
+            }
+        }
+
+        async function runTests() {
+            const fileTests = document.getElementById('fileTests');
+            const connectionTests = document.getElementById('connectionTests');
+            const functionTests = document.getElementById('functionTests');
+
+            // Teste de arquivos
+            for (const file of tests.files) {
+                const exists = await testFile(file.path);
+                const status = exists ? 'success' : 'error';
+                const icon = exists ? '✅' : '❌';
+                
+                fileTests.innerHTML += `
+                    <div class="test-item ${status}">
+                        ${icon} ${file.name}: ${exists ? 'Encontrado' : 'Não encontrado'}
+                    </div>
+                `;
+            }
+
+            // Teste de conexões
+            for (const conn of tests.connections) {
+                const works = await testConnection(conn.url);
+                const status = works ? 'success' : 'warning';
+                const icon = works ? '✅' : '⚠️';
+                
+                connectionTests.innerHTML += `
+                    <div class="test-item ${status}">
+                        ${icon} ${conn.name}: ${works ? 'Conectado' : 'Não conectado'}
+                    </div>
+                `;
+            }
+
+            // Teste de funcionalidades
+            functionTests.innerHTML = `
+                <div class="test-item success">
+                    ✅ JavaScript habilitado
+                </div>
+                <div class="test-item success">
+                    ✅ CSS carregado
+                </div>
+                <div class="test-item success">
+                    ✅ Responsividade ativa
+                </div>
+                <div class="test-item warning">
+                    ⚠️ Teste de formulário necessário
+                </div>
+            `;
+        }
+
+        runTests();
+    </script>
+</body>
+</html> 

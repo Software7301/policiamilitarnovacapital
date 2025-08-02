@@ -97,7 +97,72 @@ if (isDenunciaPage) {
     const welcomeContent = document.querySelector('.welcome-content');
     const motto = document.querySelector('.motto');
     
+    // Definir conteúdo padrão se não existir
+    if (welcomeSubtitle && !welcomeSubtitle.textContent) {
+        welcomeSubtitle.textContent = 'Sistema de Ouvidoria da Polícia Militar';
+    }
+    
+    if (welcomeContent && !welcomeContent.innerHTML) {
+        welcomeContent.innerHTML = `
+            <p>Bem-vindo ao sistema oficial de ouvidoria da Polícia Militar da Nova Capital.</p>
+            <div class="features-list">
+                <ul>
+                    <li><strong>Denúncias:</strong> Registre denúncias de forma segura e anônima</li>
+                    <li><strong>Acompanhamento:</strong> Acompanhe o status das suas denúncias</li>
+                    <li><strong>Notícias:</strong> Fique por dentro das últimas notícias</li>
+                    <li><strong>Transparência:</strong> Sistema totalmente transparente e confiável</li>
+                </ul>
+            </div>
+        `;
+    }
+    
+    if (motto && !motto.textContent) {
+        motto.textContent = 'Protegendo e Servindo a Nova Capital';
+    }
+    
     // Função de máquina de escrever
+    function typeWriter(element, text, speed = 50) {
+        if (!element) return;
+        
+        let i = 0;
+        element.innerHTML = '';
+        
+        function type() {
+            if (i < text.length) {
+                element.innerHTML += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            }
+        }
+        
+        type();
+    }
+    
+    // Inicializar animações quando a página carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        // Definir conteúdo padrão
+        if (welcomeSubtitle && !welcomeSubtitle.textContent) {
+            welcomeSubtitle.textContent = 'Sistema de Ouvidoria da Polícia Militar';
+        }
+        
+        if (welcomeContent && !welcomeContent.innerHTML) {
+            welcomeContent.innerHTML = `
+                <p>Bem-vindo ao sistema oficial de ouvidoria da Polícia Militar da Nova Capital.</p>
+                <div class="features-list">
+                    <ul>
+                        <li><strong>Denúncias:</strong> Registre denúncias de forma segura e anônima</li>
+                        <li><strong>Acompanhamento:</strong> Acompanhe o status das suas denúncias</li>
+                        <li><strong>Notícias:</strong> Fique por dentro das últimas notícias</li>
+                        <li><strong>Transparência:</strong> Sistema totalmente transparente e confiável</li>
+                    </ul>
+                </div>
+            `;
+        }
+        
+        if (motto && !motto.textContent) {
+            motto.textContent = 'Protegendo e Servindo a Nova Capital';
+        }
+    });
     function typeWriter(element, text, speed = 50, callback = null) {
         let index = 0;
         element.innerHTML = '';
@@ -208,6 +273,25 @@ function loadTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
     setTheme(savedTheme);
 }
+
+// Menu mobile
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menu-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    
+    if (menuToggle && navMenu) {
+        menuToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+        });
+        
+        // Fechar menu ao clicar fora
+        document.addEventListener('click', function(e) {
+            if (!menuToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+            }
+        });
+    }
+});
 
 // Carregar tema ao iniciar
 loadTheme();
