@@ -15,8 +15,10 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 @app.after_request
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Max-Age', '86400')
     return response
 
 def get_db():
@@ -111,8 +113,11 @@ def listar_denuncias():
         result.append(d)
     return jsonify(result)
 
-@app.route('/api/denuncias/<protocolo>', methods=['PATCH', 'PUT'])
+@app.route('/api/denuncias/<protocolo>', methods=['PATCH', 'PUT', 'OPTIONS'])
 def atualizar_status(protocolo):
+    if request.method == 'OPTIONS':
+        return '', 200
+    
     status = request.json.get('status')
     db = get_db()
     if status == 'Finalizada':
