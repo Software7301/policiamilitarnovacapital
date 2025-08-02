@@ -148,9 +148,12 @@ body {
 
 .message-text {
   word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
   white-space: pre-line;
   line-height: 1.4;
   max-width: 100%;
+  hyphens: auto;
 }
 .message.message-personal {
   float: right;

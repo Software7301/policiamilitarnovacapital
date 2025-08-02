@@ -33,7 +33,7 @@
 ### 4. URLs Configuradas
 
 Após o deploy, o backend estará disponível em:
-- **URL Principal**: `https://ouvidoria-pm-backend.onrender.com`
+- **URL Principal**: `https://policiamilitarnovacapital.onrender.com`
 - **API Endpoints**:
   - `GET /` - Status da API
   - `POST /api/denuncias` - Criar denúncia
@@ -46,10 +46,10 @@ Após o deploy, teste os endpoints:
 
 ```bash
 # Teste de status
-curl https://ouvidoria-pm-backend.onrender.com/
+curl https://policiamilitarnovacapital.onrender.com/
 
 # Teste de criação de denúncia
-curl -X POST https://ouvidoria-pm-backend.onrender.com/api/denuncias \
+curl -X POST https://policiamilitarnovacapital.onrender.com/api/denuncias \
   -H "Content-Type: application/json" \
   -d '{"nome":"Teste","rg":"123456","tipo":"1","descricao":"Teste","youtube":""}'
 ```
@@ -57,7 +57,7 @@ curl -X POST https://ouvidoria-pm-backend.onrender.com/api/denuncias \
 ### 6. Configuração do Frontend
 
 Os arquivos JavaScript já estão configurados para usar:
-- `https://ouvidoria-pm-backend.onrender.com` (produção)
+- `https://policiamilitarnovacapital.onrender.com` (produção)
 - `http://localhost:5000` (desenvolvimento local)
 
 ### 7. Monitoramento
@@ -81,14 +81,34 @@ Os arquivos JavaScript já estão configurados para usar:
 - O SQLite no Render é temporário
 - Considerar migrar para PostgreSQL se necessário
 
-### 9. Atualizações
+**Problema**: Frontend não conecta ao Render
+- Verificar se a URL está correta
+- Testar com `test-render.html`
+- Verificar logs do navegador (F12)
+- Confirmar se o serviço está "Live" no Render
+
+**Problema**: Painel admin não carrega denúncias
+- Abrir console do navegador (F12)
+- Verificar logs de erro
+- Testar URLs individualmente
+- Verificar se o backend está respondendo
+
+### 9. Teste de Conectividade
+
+Use o arquivo `test-render.html` para verificar:
+1. Se o Render está online
+2. Se as URLs estão corretas
+3. Se há problemas de CORS
+4. Se a API está respondendo
+
+### 10. Atualizações
 
 Para atualizar o deploy:
 1. Faça commit das mudanças no GitHub
 2. O Render fará deploy automático
 3. Verifique os logs para confirmar sucesso
 
-### 10. Segurança
+### 11. Segurança
 
 - ✅ CORS configurado para aceitar requisições
 - ✅ Headers de segurança configurados

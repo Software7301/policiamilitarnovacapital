@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simular Denúncia - Ouvidoria PM NC</title>
+    <link rel="shortcut icon" href="assets/Logo_PMESP.png" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .protocolo-display {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .protocolo-display h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .protocolo-numero {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .protocolo-info {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="header">
+            <img src="assets/Logo_PMESP.png" alt="Logo PMESP" class="logo">
+            <h1>Ouvidoria</h1>
+            <p><em>Polícia Militar da Nova Capital</em></p>
+        </div>
+
+        <form id="denunciaForm">
+            <div class="form-group">
+                <label for="nome">Nome Completo</label>
+                <div class="input-group">
+                    <input type="text" id="nome" placeholder="Digite seu nome completo" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="rg">RG</label>
+                <div class="input-group">
+                    <input type="text" id="rg" placeholder="00.000.000-0" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo">Tipo de Manifestação</label>
+                <div class="input-group">
+                    <select id="tipo" required>
+                        <option value="">Selecione o tipo</option>
+                        <option value="Denúncia">Denúncia</option>
+                        <option value="Sugestão">Sugestão</option>
+                        <option value="Elogio">Elogio</option>
+                        <option value="Reclamação">Reclamação</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Descrição</label>
+                <div class="input-group">
+                    <textarea id="descricao" placeholder="Descreva sua manifestação detalhadamente..." required></textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <span>📝</span>
+                <span>Enviar Manifestação</span>
+            </button>
+        </form>
+
+        <div class="protocolo-display" id="protocoloDisplay">
+            <div class="success-icon">✅</div>
+            <h3>Manifestação Enviada com Sucesso!</h3>
+            <div class="protocolo-numero" id="protocoloNumero"></div>
+            <div class="protocolo-info">
+                <p><strong>Guarde este protocolo!</strong></p>
+                <p>Você pode usar este número para acompanhar o status da sua manifestação.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Função para gerar protocolo aleatório
+        function gerarProtocolo() {
+            const digitos = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
+            return digitos.toString();
+        }
+
+        // Função para salvar denúncia no localStorage
+        function salvarDenuncia(dados) {
+            const denunciasExistentes = JSON.parse(localStorage.getItem('denunciasSimuladas') || '[]');
+            denunciasExistentes.push(dados);
+            localStorage.setItem('denunciasSimuladas', JSON.stringify(denunciasExistentes));
+        }
+
+        // Função para verificar se protocolo já existe
+        function protocoloExiste(protocolo) {
+            const denunciasExistentes = JSON.parse(localStorage.getItem('denunciasSimuladas') || '[]');
+            return denunciasExistentes.some(d => d.protocolo === protocolo);
+        }
+
+        // Função para gerar protocolo único
+        function gerarProtocoloUnico() {
+            let protocolo;
+            do {
+                protocolo = gerarProtocolo();
+            } while (protocoloExiste(protocolo));
+            return protocolo;
+        }
+
+        // Event listener para o formulário
+        document.getElementById('denunciaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nome = document.getElementById('nome').value;
+            const rg = document.getElementById('rg').value;
+            const tipo = document.getElementById('tipo').value;
+            const descricao = document.getElementById('descricao').value;
+            
+            // Gerar protocolo único
+            const protocolo = gerarProtocoloUnico();
+            
+            // Criar objeto da denúncia
+            const denuncia = {
+                protocolo: protocolo,
+                nome: nome,
+                rg: rg,
+                tipo: tipo,
+                descricao: descricao,
+                status: 'Em análise',
+                dataCriacao: new Date().toISOString()
+            };
+            
+            // Salvar no localStorage
+            salvarDenuncia(denuncia);
+            
+            // Mostrar protocolo
+            document.getElementById('protocoloNumero').textContent = protocolo;
+            document.getElementById('protocoloDisplay').style.display = 'block';
+            
+            // Limpar formulário
+            document.getElementById('denunciaForm').reset();
+            
+            // Scroll para o protocolo
+            document.getElementById('protocoloDisplay').scrollIntoView({ behavior: 'smooth' });
+            
+            console.log(`Nova denúncia criada: Protocolo ${protocolo}`);
+        });
+
+        // Formatar RG automaticamente
+        document.getElementById('rg').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 0) {
+                value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{1})/, '$1.$2.$3-$4');
+            }
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html> 

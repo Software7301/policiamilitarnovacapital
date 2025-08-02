@@ -653,52 +653,31 @@ async function carregarDenuncias() {
     try {
         console.log('Carregando denúncias do servidor...');
         
-        // Usar apenas servidor local
-        const urls = [
-            'http://localhost:5000/api/denuncias',
-            'http://127.0.0.1:5000/api/denuncias'
-        ];
-        
-        let todasDenuncias = [];
-        let success = false;
-        
-        for (const url of urls) {
-            try {
-                console.log(`Tentando carregar denúncias de: ${url}`);
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    console.log(`✅ Conectado ao servidor ${url} - carregando denúncias reais`);
-                    todasDenuncias = await response.json();
-                    window.denuncias = todasDenuncias;
-                    success = true;
-                    break;
-                } else {
-                    console.log(`❌ Erro HTTP ${response.status} em ${url}`);
-                }
-            } catch (error) {
-                console.log(`❌ Erro de conexão com ${url}:`, error.message);
-                continue;
+        // Carregar APENAS do servidor
+        const url = 'https://policiamilitarnovacapital.onrender.com/api/denuncias';
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
             }
-        }
+        });
         
-        if (success) {
+        if (response.ok) {
+            console.log('✅ Conectado ao servidor - carregando denúncias reais');
+            const todasDenuncias = await response.json();
+            window.denuncias = todasDenuncias;
+            
             // Filtrar apenas denúncias ativas (não finalizadas)
             const denunciasAtivas = todasDenuncias.filter(d => d.status !== 'Finalizada');
             lastDenunciasCount = denunciasAtivas.length;
             
             renderizarDenuncias(denunciasAtivas);
         } else {
-            console.log('❌ Todas as URLs falharam');
+            console.log('❌ Erro ao conectar ao servidor:', response.status);
             renderizarDenuncias([]);
         }
     } catch (error) {
-        console.log('❌ Erro geral ao carregar denúncias:', error.message);
+        console.log('❌ Erro de conexão com servidor:', error.message);
         renderizarDenuncias([]);
     }
 }
@@ -789,48 +768,39 @@ async function handleStatusChange(protocolo, novoStatus) {
 }
 
 async function atualizarStatusNoServidor(protocolo, novoStatus) {
-    // Usar apenas servidor local
-    const urls = [
-        `http://localhost:5000/api/denuncias/${protocolo}`,
-        `http://127.0.0.1:5000/api/denuncias/${protocolo}`
-    ];
+    const url = `https://policiamilitarnovacapital.onrender.com/api/denuncias/${protocolo}`;
     
-    for (const url of urls) {
-        try {
-            console.log(`Tentando atualizar status em: ${url}`);
-            
-            // Forçar cache busting
-            const cacheBuster = new Date().getTime();
-            const urlWithCache = `${url}?_t=${cacheBuster}`;
-            
-            const response = await fetch(urlWithCache, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
-                },
-                body: JSON.stringify({ 
-                    status: novoStatus,
-                    finalizada_em: novoStatus === 'Finalizada' ? new Date().toISOString() : null
-                })
-            });
-            
-            if (response.ok) {
-                const result = await response.json();
-                console.log('✅ Status atualizado no servidor:', result);
-                return result;
-            } else {
-                console.log(`❌ Erro HTTP ${response.status} em ${url}`);
-            }
-        } catch (error) {
-            console.log(`❌ Erro ao atualizar em ${url}:`, error.message);
-            continue;
+    try {
+        // Forçar cache busting
+        const cacheBuster = new Date().getTime();
+        const urlWithCache = `${url}?_t=${cacheBuster}`;
+        
+        const response = await fetch(urlWithCache, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            },
+            body: JSON.stringify({ 
+                status: novoStatus,
+                dataFinalizacao: novoStatus === 'Finalizada' ? new Date().toISOString() : null
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+        
+        const result = await response.json();
+        console.log('✅ Status atualizado no servidor:', result);
+        return result;
+        
+    } catch (error) {
+        console.log('❌ Erro ao atualizar no servidor:', error.message);
+        throw error;
     }
-    
-    throw new Error('Todas as URLs falharam ao atualizar status');
 }
 
 function finalizarDenuncia(protocolo) {

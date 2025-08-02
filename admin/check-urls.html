@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar URLs Google OAuth</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success { background: rgba(40, 167, 69, 0.3); }
+        .error { background: rgba(220, 53, 69, 0.3); }
+        .warning { background: rgba(255, 193, 7, 0.3); }
+        .info { background: rgba(23, 162, 184, 0.3); }
+        .url-list {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .url-item {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .copy-btn:hover {
+            background: #218838;
+        }
+        button {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #3367d6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Verificar URLs Google OAuth</h1>
+        
+        <div class="status info">
+            <h3>📋 URLs que precisam ser configuradas no Google Cloud Console:</h3>
+        </div>
+        
+        <div class="url-list">
+            <h4>🌐 Authorized JavaScript origins:</h4>
+            <div class="url-item">
+                <code>http://127.0.0.1:5500</code>
+                <button class="copy-btn" onclick="copyToClipboard('http://127.0.0.1:5500')">Copiar</button>
+            </div>
+            <div class="url-item">
+                <code>http://localhost:5500</code>
+                <button class="copy-btn" onclick="copyToClipboard('http://localhost:5500')">Copiar</button>
+            </div>
+            <div class="url-item">
+                <code>https://policiamilitarnovacapital.onrender.com</code>
+                <button class="copy-btn" onclick="copyToClipboard('https://policiamilitarnovacapital.onrender.com')">Copiar</button>
+            </div>
+        </div>
+        
+        <div class="url-list">
+            <h4>🔄 Authorized redirect URIs:</h4>
+            <div class="url-item">
+                <code>http://127.0.0.1:5500/admin/admin.html</code>
+                <button class="copy-btn" onclick="copyToClipboard('http://127.0.0.1:5500/admin/admin.html')">Copiar</button>
+            </div>
+            <div class="url-item">
+                <code>http://localhost:5500/admin/admin.html</code>
+                <button class="copy-btn" onclick="copyToClipboard('http://localhost:5500/admin/admin.html')">Copiar</button>
+            </div>
+            <div class="url-item">
+                <code>https://policiamilitarnovacapital.onrender.com/admin/admin.html</code>
+                <button class="copy-btn" onclick="copyToClipboard('https://policiamilitarnovacapital.onrender.com/admin/admin.html')">Copiar</button>
+            </div>
+        </div>
+        
+        <div class="status warning">
+            <h3>⚠️ Passos para configurar:</h3>
+            <ol>
+                <li>Acesse: <a href="https://console.cloud.google.com/" target="_blank" style="color: #ffd700;">https://console.cloud.google.com/</a></li>
+                <li>Vá em <strong>APIs & Services</strong> → <strong>Credentials</strong></li>
+                <li>Clique no seu OAuth 2.0 Client ID</li>
+                <li>Cole as URLs acima nos campos corretos</li>
+                <li>Clique em <strong>"Save"</strong></li>
+                <li>Aguarde 5-10 minutos</li>
+            </ol>
+        </div>
+        
+        <div class="status info">
+            <h3>🔧 Teste após configurar:</h3>
+            <button onclick="testGoogleSignIn()">Testar Google Sign-In</button>
+            <button onclick="window.open('admin/admin.html', '_blank')">Abrir Painel Admin</button>
+            <button onclick="window.open('test-google.html', '_blank')">Abrir Página de Teste</button>
+        </div>
+        
+        <div id="test-result"></div>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('URL copiada: ' + text);
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                // Fallback para navegadores mais antigos
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('URL copiada: ' + text);
+            });
+        }
+        
+        function testGoogleSignIn() {
+            if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+                google.accounts.id.initialize({
+                    client_id: '759670506611-0kvv5vfd8rmc7a53h0c4aktcc42seqiu.apps.googleusercontent.com',
+                    callback: handleGoogleLogin,
+                    auto_select: false,
+                    cancel_on_tap_outside: true
+                });
+                
+                google.accounts.id.prompt((notification) => {
+                    const resultDiv = document.getElementById('test-result');
+                    
+                    if (notification.isNotDisplayed()) {
+                        resultDiv.innerHTML = `
+                            <div class="status error">
+                                <h3>❌ Erro: Popup não exibido</h3>
+                                <p><strong>Motivo:</strong> ${notification.getNotDisplayedReason()}</p>
+                                <p>Verifique se as URLs estão configuradas no Google Cloud Console.</p>
+                            </div>
+                        `;
+                    } else if (notification.isSkippedMoment()) {
+                        resultDiv.innerHTML = `
+                            <div class="status warning">
+                                <h3>⚠️ Popup pulado</h3>
+                                <p><strong>Motivo:</strong> ${notification.getSkippedReason()}</p>
+                            </div>
+                        `;
+                    } else if (notification.isDismissedMoment()) {
+                        resultDiv.innerHTML = `
+                            <div class="status info">
+                                <h3>ℹ️ Popup fechado</h3>
+                                <p><strong>Motivo:</strong> ${notification.getDismissedReason()}</p>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                document.getElementById('test-result').innerHTML = `
+                    <div class="status error">
+                        <h3>❌ Google Sign-In não carregado</h3>
+                        <p>Recarregue a página e tente novamente.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function handleGoogleLogin(response) {
+            const resultDiv = document.getElementById('test-result');
+            const payload = JSON.parse(atob(response.credential.split('.')[1]));
+            
+            resultDiv.innerHTML = `
+                <div class="status success">
+                    <h3>🎉 Google Sign-In funcionando!</h3>
+                    <p><strong>Nome:</strong> ${payload.name}</p>
+                    <p><strong>Email:</strong> ${payload.email}</p>
+                    <p>✅ As URLs estão configuradas corretamente!</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html> 

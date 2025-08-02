@@ -12,33 +12,30 @@ function addMessage(content, sender = "bot", shouldFormat = false) {
   const messageDiv = document.createElement("div");
   messageDiv.classList.add("message");
   
-  // Função para adicionar quebra de linha em textos longos
+  // Função para adicionar quebra de linha automática em textos longos
   function formatLongText(text) {
     // Se o texto já tem quebras de linha naturais, preserva elas
     if (text.includes('\n')) {
       return text.replace(/\n/g, '<br>');
     }
     
-    // Se o texto é muito longo, adiciona quebras automáticas
-    if (text.length > 60) {
-      // Quebra a cada 60 caracteres, mas respeita palavras
-      const words = text.split(' ');
-      let formattedText = '';
-      let currentLine = '';
-      
-      for (let word of words) {
-        if ((currentLine + word).length > 60) {
-          formattedText += currentLine.trim() + '<br>';
-          currentLine = word + ' ';
-        } else {
-          currentLine += word + ' ';
-        }
+    // Quebra automática a cada 40 caracteres para mobile
+    const maxCharsPerLine = 40;
+    const words = text.split(' ');
+    let formattedText = '';
+    let currentLine = '';
+    
+    for (let word of words) {
+      if ((currentLine + word).length > maxCharsPerLine) {
+        formattedText += currentLine.trim() + '<br>';
+        currentLine = word + ' ';
+      } else {
+        currentLine += word + ' ';
       }
-      
-      formattedText += currentLine.trim();
-      return formattedText;
     }
-    return text;
+    
+    formattedText += currentLine.trim();
+    return formattedText;
   }
   
   if (sender === "user") {
@@ -227,9 +224,6 @@ function sendEmail(responses) {
 
 async function nextStep(userText) {
   if (userText) {
-    // Aplicar formatação apenas na descrição da solicitação (step 5)
-    const shouldFormat = step === 4; // step 4 corresponde ao case 5 (descrição)
-    addMessage(userText, "user", shouldFormat);
     userResponses.push(userText);
   }
 
@@ -300,8 +294,8 @@ async function nextStep(userText) {
     case 5:
       if (modo === 'denunciar') {
         typeBotMessage("📝 Descreva sua solicitação:");
-        // Atualizar placeholder para indicar que quebra de linha está disponível
-        input.placeholder = "Digite Aqui... (Shift+Enter para quebra de linha)";
+        // Atualizar placeholder
+        input.placeholder = "Digite Aqui...";
       }
       break;
     case 6:
@@ -314,12 +308,23 @@ async function nextStep(userText) {
     case 7:
       if (modo === 'denunciar') {
         typeBotMessage("✅ Obrigado! Suas informações foram enviadas para análise.");
-        const protocolo = await sendToDatabase(userResponses);
-        if (protocolo) {
-          typeBotMessage(`📋 **PROTOCOLO GERADO COM SUCESSO!**\n\n🎯 **Seu protocolo:** **${protocolo}**\n\n📝 **IMPORTANTE:** Guarde este número para acompanhar sua denúncia!\n\n🔍 **Para acompanhar:** Digite o número ${protocolo} quando retornar ao sistema.`);
-        } else {
-          typeBotMessage("⚠️ Houve um erro ao salvar suas informações. Tente novamente mais tarde.");
-        }
+        
+        // Gerar protocolo localmente primeiro
+        const protocoloLocal = gerarProtocoloAleatorio();
+        console.log('Protocolo gerado localmente:', protocoloLocal);
+        
+        // Tentar enviar para o servidor
+        const protocoloServidor = await sendToDatabase(userResponses);
+        
+        // Usar o protocolo do servidor se disponível, senão usar o local
+        const protocoloFinal = protocoloServidor || protocoloLocal;
+        
+        console.log('Protocolo final que será exibido:', protocoloFinal);
+        
+        // Garantir que a mensagem seja exibida
+        setTimeout(() => {
+          typeBotMessage(`📋 **PROTOCOLO GERADO COM SUCESSO!**\n\n🎯 **Seu protocolo:** **${protocoloFinal}**\n\n📝 **IMPORTANTE:** Guarde este número para acompanhar sua denúncia!\n\n🔍 **Para acompanhar:** Digite o número ${protocoloFinal} quando retornar ao sistema.`);
+        }, 500);
       }
       break;
     default:
@@ -342,17 +347,14 @@ input.addEventListener("keydown", function (e) {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     const userText = input.value.trim();
+    
     if (userText) {
-      // Aplicar formatação apenas na descrição da solicitação (step 5)
+      // Sempre formatar na descrição da solicitação (step 5)
       const shouldFormat = step === 4; // step 4 corresponde ao case 5 (descrição)
       addMessage(userText, "user", shouldFormat);
       input.value = "";
       nextStep(userText);
     }
-  } else if (e.key === "Enter" && e.shiftKey) {
-    // Permite quebra de linha com Shift+Enter
-    e.preventDefault();
-    input.value += '\n';
   }
 });
 

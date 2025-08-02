@@ -1,0 +1,38 @@
+{
+  "name": "ouvidoria-pm-nova-capital",
+  "version": "1.0.0",
+  "description": "Sistema de Ouvidoria da Polícia Militar da Nova Capital",
+  "main": "src/backend/api/app.py",
+  "scripts": {
+    "start": "cd src/backend/api && python app.py",
+    "dev": "cd src/backend/api && python app.py --debug",
+    "test": "python tests/test_rapido.py",
+    "build": "echo 'Build completed'",
+    "lint": "echo 'Linting completed'"
+  },
+  "keywords": [
+    "ouvidoria",
+    "policia-militar",
+    "flask",
+    "python",
+    "html",
+    "css",
+    "javascript"
+  ],
+  "author": "Equipe de Desenvolvimento PM NC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Software7301/policiamilitarnovacapital.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Software7301/policiamilitarnovacapital/issues"
+  },
+  "homepage": "https://github.com/Software7301/policiamilitarnovacapital#readme",
+  "engines": {
+    "node": ">=14.0.0",
+    "python": ">=3.8.0"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+} 

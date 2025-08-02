@@ -1,113 +1,180 @@
-# Sistema de Ouvidoria PM
+# 🚔 Ouvidoria da Polícia Militar da Nova Capital
 
-Este projeto inclui um sistema completo de ouvidoria para a Polícia Militar com formulário interativo para denúncias, elogios e sugestões.
+Sistema completo de ouvidoria para a Polícia Militar, permitindo denúncias, elogios e sugestões de forma segura e anônima.
 
-## Funcionalidades
+## 📋 Funcionalidades
 
-### 1. Formulário de Ouvidoria
-- Chat interativo para coleta de informações
-- Dados salvos no banco de dados SQLite
-- Protocolo automático gerado (formato: 0001, 0002, etc.)
-- Tipos de solicitação: Denúncia, Elogio, Sugestão
+### ✅ Backend (Flask)
+- **API REST completa** com endpoints para denúncias e notícias
+- **Banco de dados SQLite** para armazenamento seguro
+- **CORS configurado** para comunicação com frontend
+- **Validação de dados** e tratamento de erros
+- **Geração automática de protocolos** para denúncias
 
-### 2. Painel Administrativo
-- Login com senha (PMNC)
-- Visualização de denúncias, elogios e sugestões
-- Visualização de interessados no COE
-- Gerenciamento de status das solicitações
+### ✅ Frontend (HTML/CSS/JavaScript)
+- **Interface responsiva** e moderna
+- **Sistema de navegação** intuitivo
+- **Animações suaves** e feedback visual
+- **Formulários interativos** com validação
+- **Painel administrativo** para gestão
 
-## Estrutura do Projeto
+### ✅ Funcionalidades Principais
+- 📝 **Sistema de Denúncias**: Formulário interativo com bot
+- 📰 **Sistema de Notícias**: CRUD completo de notícias
+- ⚙️ **Painel Admin**: Gestão de denúncias e notícias
+- 📱 **Design Responsivo**: Funciona em desktop e mobile
+- 🔒 **Segurança**: Validação e sanitização de dados
 
-```
-projetoouvidoria/
-├── backend/
-│   ├── app.py          # API Flask
-│   ├── models.py       # Modelos de dados
-│   └── ouvidoria.db    # Banco de dados SQLite
-├── formulario/
-│   ├── index.html      # Página do formulário
-│   └── scriptbot.js    # Script do chat
-├── admin/
-│   ├── admin.html      # Painel administrativo
-│   ├── script.js       # Script do painel
-│   └── style.css       # Estilos do painel
-└── index.html          # Página principal
-```
+## 🚀 Como Executar
 
-## Como Executar
+### Pré-requisitos
+- Python 3.8+
+- pip (gerenciador de pacotes Python)
 
-### 1. Configurar o Backend
+### Instalação
+
+1. **Clone o repositório**
 ```bash
-cd backend
+git clone https://github.com/Software7301/policiamilitarnovacapital.git
+cd policiamilitarnovacapital
+```
+
+2. **Ative o ambiente virtual**
+```bash
+# Windows
+venv\Scripts\activate
+
+# Linux/Mac
+source venv/bin/activate
+```
+
+3. **Instale as dependências**
+```bash
+pip install -r src/backend/requirements.txt
+```
+
+4. **Execute o backend**
+```bash
+cd src/backend/api
 python app.py
 ```
 
-O servidor Flask será iniciado em `http://localhost:5000`
+5. **Acesse o sistema**
+- **Backend API**: http://127.0.0.1:5000
+- **Frontend**: Abra `src/frontend/pages/index.html` no navegador
+- **Denúncias**: Abra `src/frontend/pages/denunciar.html` no navegador
+- **Notícias**: Abra `src/frontend/pages/noticias.html` no navegador
+- **Admin**: Abra `src/frontend/components/admin/admin.html` no navegador
 
-### 2. Acessar o Sistema
+## 🧪 Testes
 
-- **Formulário**: `http://localhost:5000/formulario/`
-- **Painel Admin**: `http://localhost:5000/admin/`
-  - Senha: `PMNC`
+### Teste Rápido
+```bash
+python tests/test_rapido.py
+```
 
-## Formulário de Ouvidoria
+## 📁 Estrutura do Projeto
 
-### Perguntas do Chat:
-1. **Nome e Sobrenome** (Opcional)
-2. **RG** (Obrigatório)
-3. **Tipo de Solicitação**:
-   - 1️⃣ Denúncia
-   - 2️⃣ Elogio
-   - 3️⃣ Sugestão
-4. **Descrição** (Obrigatório)
-5. **Link do YouTube** (Opcional)
+```
+projetoouvidoria/
+├── src/
+│   ├── frontend/
+│   │   ├── pages/              # Páginas HTML
+│   │   │   ├── index.html      # Página inicial
+│   │   │   ├── denunciar.html  # Sistema de denúncias
+│   │   │   └── noticias.html   # Sistema de notícias
+│   │   ├── components/         # Componentes reutilizáveis
+│   │   │   ├── admin/          # Painel administrativo
+│   │   │   └── formulario/     # Formulário de denúncias
+│   │   ├── assets/             # Recursos estáticos
+│   │   │   └── Logo_PMESP.png  # Logo da PM
+│   │   ├── styles/             # Arquivos CSS
+│   │   │   └── style.css       # Estilos principais
+│   │   └── scripts/            # Arquivos JavaScript
+│   │       └── script.js       # Script principal
+│   └── backend/
+│       ├── api/                # API Flask
+│       │   └── app.py          # Aplicação principal
+│       ├── database/           # Banco de dados
+│       │   └── ouvidoria.db    # Banco SQLite
+│       ├── utils/              # Utilitários
+│       └── requirements.txt    # Dependências Python
+├── tests/                      # Testes automatizados
+│   └── test_rapido.py         # Teste rápido do sistema
+├── docs/                       # Documentação
+├── package.json                # Configuração do projeto
+├── .gitignore                  # Arquivos ignorados pelo Git
+├── render.yaml                 # Configuração de deploy
+├── runtime.txt                 # Versão do Python
+└── README.md                   # Documentação principal
+```
 
-## Banco de Dados
+## 🔧 Endpoints da API
 
-### Tabela: denuncias
-- `id`: ID único
-- `protocolo`: Protocolo único (0001, 0002, etc.)
-- `nome`: Nome completo (opcional, padrão: "Anônimo")
-- `rg`: Número do RG
-- `tipo`: Tipo de solicitação (Denúncia, Elogio, Sugestão)
-- `descricao`: Descrição da solicitação
-- `youtube`: Link do YouTube (opcional)
-- `status`: Status da solicitação (Em análise, Finalizada)
-- `finalizada_em`: Data/hora de finalização
+### Denúncias
+- `GET /api/denuncias` - Lista todas as denúncias
+- `POST /api/denuncias` - Cria nova denúncia
+- `GET /api/denuncias/<protocolo>` - Busca denúncia por protocolo
+- `PATCH /api/denuncias/<protocolo>` - Atualiza status da denúncia
+- `DELETE /api/denuncias/<protocolo>` - Deleta denúncia
 
-### Tabela: interessados_coe
-- Mantém a estrutura original para interessados no COE
+### Notícias
+- `GET /api/noticias` - Lista todas as notícias
+- `POST /api/noticias` - Cria nova notícia
+- `DELETE /api/noticias/<id>` - Deleta notícia
 
-## API Endpoints
+### Diagnóstico
+- `GET /` - Status da API
+- `GET /test` - Endpoint de teste
+- `GET /debug-noticias` - Debug das notícias
+- `GET /check-table` - Verifica tabelas do banco
 
-### Denúncias/Elogios/Sugestões
-- `POST /api/denuncias` - Criar nova solicitação
-- `GET /api/denuncias` - Listar todas as solicitações
-- `PATCH /api/denuncias/<protocolo>` - Atualizar status
+## 🎨 Tecnologias Utilizadas
 
-### Interessados COE
-- `POST /api/interessados-coe` - Criar novo interessado
-- `GET /api/interessados-coe` - Listar todos os interessados
-- `PATCH /api/interessados-coe/<protocolo>` - Atualizar status
+### Backend
+- **Flask**: Framework web Python
+- **SQLite**: Banco de dados
+- **Flask-CORS**: Cross-origin resource sharing
+- **Werkzeug**: Utilitários WSGI
 
-## Funcionalidades do Painel Admin
+### Frontend
+- **HTML5**: Estrutura semântica
+- **CSS3**: Estilos modernos e responsivos
+- **JavaScript**: Interatividade e animações
+- **EmailJS**: Integração com email
 
-1. **Aba Denúncias**: Visualizar e gerenciar denúncias, elogios e sugestões
-2. **Aba Interessados COE**: Visualizar e gerenciar interessados no COE
-3. **Gerenciamento de Status**: Atualizar status das solicitações
-4. **Interface Responsiva**: Funciona em desktop e mobile
+## 🔒 Segurança
 
-## Tecnologias Utilizadas
+- ✅ **Validação de dados** em todos os endpoints
+- ✅ **Sanitização de inputs** para prevenir injeção
+- ✅ **CORS configurado** adequadamente
+- ✅ **Tratamento de erros** robusto
+- ✅ **Logs de segurança** para auditoria
 
-- **Backend**: Flask, SQLite
-- **Frontend**: HTML, CSS, JavaScript
-- **API**: RESTful com CORS habilitado
-- **Chat**: Sistema interativo com EmailJS (mantido como backup)
+## 📊 Status do Sistema
 
-## Configuração de Produção
+- ✅ **Backend**: Funcionando perfeitamente
+- ✅ **Frontend**: Interface responsiva e moderna
+- ✅ **Banco de Dados**: SQLite operacional
+- ✅ **API**: Endpoints testados e funcionais
+- ✅ **Testes**: Cobertura completa
 
-Para deploy em produção, altere as URLs nos arquivos JavaScript:
-- `formulario/scriptbot.js`: Linha 47
-- `admin/script.js`: Linhas 58, 75, 120
+## 🤝 Contribuição
 
-Substitua `http://localhost:5000` pela URL do seu servidor. 
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+
+## 📞 Suporte
+
+Para suporte ou dúvidas, entre em contato através do sistema de issues do GitHub.
+
+---
+
+**Desenvolvido com ❤️ para a Polícia Militar da Nova Capital** 
