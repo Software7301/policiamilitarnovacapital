@@ -16,7 +16,7 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
     return response
 
 def get_db():
@@ -111,7 +111,7 @@ def listar_denuncias():
         result.append(d)
     return jsonify(result)
 
-@app.route('/api/denuncias/<protocolo>', methods=['PATCH'])
+@app.route('/api/denuncias/<protocolo>', methods=['PATCH', 'PUT'])
 def atualizar_status(protocolo):
     status = request.json.get('status')
     db = get_db()
