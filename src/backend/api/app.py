@@ -317,8 +317,8 @@ def adicionar_finalizada():
             # Inserir nova denúncia finalizada
             db.execute('''
                 INSERT INTO denuncias 
-                (protocolo, nome, rg, tipo, descricao, youtube, status, data_criacao, finalizada_em)
-                VALUES (?, ?, ?, ?, ?, ?, 'Finalizada', ?, ?)
+                (protocolo, nome, rg, tipo, descricao, youtube, status, finalizada_em)
+                VALUES (?, ?, ?, ?, ?, ?, 'Finalizada', ?)
             ''', (
                 data.get('protocolo'),
                 data.get('nome', 'Anônimo'),
@@ -326,7 +326,6 @@ def adicionar_finalizada():
                 data.get('tipo', ''),
                 data.get('descricao', ''),
                 data.get('youtube', ''),
-                data.get('data_criacao', datetime.datetime.utcnow().isoformat()),
                 data.get('data_finalizacao', datetime.datetime.utcnow().isoformat())
             ))
             db.commit()
@@ -337,6 +336,7 @@ def adicionar_finalizada():
             }), 201
             
     except Exception as e:
+        print(f"Erro em adicionar_finalizada: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 # ============================================================================
