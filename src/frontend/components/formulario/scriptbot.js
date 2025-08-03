@@ -280,8 +280,8 @@ async function nextStep(userText) {
       if (modo === 'acompanhar') {
         const protocolo = userResponses[1];
         
-        // Mostrar o protocolo que o usuário digitou
-        addMessage(`Protocolo: ${protocolo}`, "user");
+        // Mostrar o protocolo que o usuário digitou (exatamente como digitou)
+        addMessage(protocolo, "user");
         
         const dados = await buscarProtocolo(protocolo);
         
