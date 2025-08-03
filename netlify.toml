@@ -1,12 +1,10 @@
 [build]
-  command = "echo 'Frontend build completed'"
   publish = "src/frontend"
 
 [[redirects]]
   from = "/api/*"
   to = "https://policiamilitarnovacapital.onrender.com/api/:splat"
   status = 200
-  force = true
 
 [[redirects]]
   from = "/*"
