@@ -146,13 +146,14 @@ async function sendToDatabase(responses) {
     if (!response || !response.ok) {
       console.error("Todas as URLs falharam. Último erro:", lastError);
       console.log("Retornando protocolo gerado:", protocoloGerado);
+      return protocoloGerado;
     } else {
       const data = await response.json();
-      console.log("Dados enviados com sucesso. Protocolo:", data.protocolo || protocoloGerado);
+      console.log("Dados enviados com sucesso. Protocolo do servidor:", data.protocolo);
+      console.log("Protocolo final que será exibido:", data.protocolo || protocoloGerado);
+      // Usar o protocolo do servidor se disponível, senão usar o gerado
+      return data.protocolo || protocoloGerado;
     }
-    
-    // Sempre retornar o protocolo gerado
-    return protocoloGerado;
     
   } catch (error) {
     console.error("Erro ao enviar dados:", error);

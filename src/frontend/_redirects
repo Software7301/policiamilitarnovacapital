@@ -1,0 +1,3 @@
+# Redirecionamentos para o Netlify
+/api/*  /.netlify/functions/app  200
+/*      /index.html              200 

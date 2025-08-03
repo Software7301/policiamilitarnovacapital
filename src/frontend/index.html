@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ouvidoria da Polícia Militar da Nova Capital - Denúncias, elogios e sugestões">
+    <title>Polícia Militar da Nova Capital</title>
+    
+    <!-- Scripts externos -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2.6.4/dist/email.min.js"></script>
+    
+    <!-- Fontes -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="shortcut icon" href="assets/Logo_PMESP.png" type="image/x-icon">
+    <style>
+        /* Estilos de fallback caso o CSS não carregue */
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f766e 100%);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .fallback {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        .fallback h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .fallback p {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header class="habblet-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-container">
+                    <img src="assets/Logo_PMESP.png" alt="Logo PMESP" class="header-logo">
+                    <h1>PM NC</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo principal -->
+    <main class="main-content">
+        <div class="pmesp-container">
+            <section class="pmesp-card">
+                <div class="card-header">
+                    <h3>
+                        Polícia Militar da Nova Capital
+                        <img src="assets/Logo_PMESP.png" alt="Logo PMESP" class="pm-logo">
+                    </h3>
+                </div>
+                <div class="card-content">
+                    <h4 class="welcome-title">Bem Vindo ao Site da Nova Capital</h4>
+                    <p class="welcome-subtitle">Sistema de Ouvidoria Interativo</p>
+                    <div class="welcome-content">
+                        <p><strong>Denúncias:</strong> Registre ocorrências de forma segura</p>
+                        <p><strong>Acompanhamento:</strong> Acompanhe o status em tempo real</p>
+                        <p><strong>Transparência:</strong> Sistema totalmente transparente</p>
+                        <p><strong>Segurança:</strong> Dados protegidos e sigilosos</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Navegação inferior -->
+    <footer class="bottom-nav">
+        <div class="bottom-nav-content">
+            <a href="index.html" class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Início</span>
+            </a>
+            <a href="pages/denunciar.html" class="nav-item">
+                <span class="nav-icon">📝</span>
+                <span class="nav-text">Denunciar</span>
+            </a>
+            <a href="pages/noticias.html" class="nav-item">
+                <span class="nav-icon">📰</span>
+                <span class="nav-text">Notícias</span>
+            </a>
+            <a href="#" class="nav-item" id="equipeBtn">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">Equipe</span>
+            </a>
+            <a href="components/admin/admin.html" class="nav-item" target="_blank">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Admin</span>
+            </a>
+        </div>
+    </footer>
+
+    <!-- Modal da Equipe -->
+    <div id="equipeModal" class="modal">
+        <div class="modal-content equipe-modal">
+            <div class="modal-header">
+                <h2>Nossa Equipe</h2>
+                <span class="close" id="closeEquipeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="equipe-container">
+                    <div class="equipe-grid">
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👨‍💼</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Comandante Silva</h3>
+                                <p>Comandante Geral</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👩‍💼</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Tenente Santos</h3>
+                                <p>Ouvidora</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👨‍💻</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Sargento Costa</h3>
+                                <p>Coordenador Técnico</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="scripts/equipe-simple.js"></script>
+    
+    <!-- Fallback caso o CSS não carregue -->
+    <div class="fallback" style="display: none;">
+        <h1>Polícia Militar da Nova Capital</h1>
+        <p>Sistema de Ouvidoria Interativo</p>
+        <p>Site funcionando corretamente!</p>
+    </div>
+    
+    <script>
+        // Verificar se o CSS carregou
+        setTimeout(function() {
+            if (!document.querySelector('.habblet-header')) {
+                document.querySelector('.fallback').style.display = 'block';
+            }
+        }, 1000);
+    </script>
+</body>
+</html> 
