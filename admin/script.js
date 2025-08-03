@@ -673,7 +673,10 @@ async function carregarDenuncias() {
                 
                 if (response.ok) {
                     console.log(`✅ Conectado ao servidor ${url} - carregando denúncias reais`);
-                    todasDenuncias = await response.json();
+                    const responseData = await response.json();
+                    // Verificar se a resposta tem a propriedade 'denuncias'
+                    todasDenuncias = responseData.denuncias || responseData;
+                    console.log('Dados recebidos:', todasDenuncias);
                     window.denuncias = todasDenuncias;
                     success = true;
                     break;
