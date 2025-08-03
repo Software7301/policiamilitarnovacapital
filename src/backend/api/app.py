@@ -164,16 +164,51 @@ def atualizar_status(protocolo):
         db = get_db()
         
         if status == 'Finalizada':
+            # Buscar dados da denúncia antes de finalizar
+            denuncia = db.execute('SELECT * FROM denuncias WHERE protocolo = ?', (protocolo,)).fetchone()
+            if not denuncia:
+                return jsonify({'error': 'Protocolo não encontrado'}), 404
+            
+            # Atualizar no banco principal
             finalizada_em = datetime.datetime.utcnow().isoformat()
             db.execute('''
                 UPDATE denuncias SET status = ?, finalizada_em = ? WHERE protocolo = ?
             ''', (status, finalizada_em, protocolo))
+            db.commit()
+            
+            # Mover para o backend de finalizadas
+            try:
+                import requests
+                dados_finalizada = {
+                    'protocolo': denuncia['protocolo'],
+                    'nome': denuncia['nome'],
+                    'rg': denuncia['rg'],
+                    'tipo': denuncia['tipo'],
+                    'descricao': denuncia['descricao'],
+                    'youtube': denuncia['youtube'],
+                    'data_criacao': denuncia.get('data_criacao', datetime.datetime.utcnow().isoformat()),
+                    'data_finalizacao': finalizada_em,
+                    'observacoes': 'Movida automaticamente do sistema principal'
+                }
+                
+                # Tentar enviar para o backend de finalizadas
+                response = requests.post('http://localhost:5001/api/finalizadas', 
+                                      json=dados_finalizada, timeout=5)
+                
+                if response.status_code == 201:
+                    print(f"✅ Denúncia {protocolo} movida para finalizadas")
+                else:
+                    print(f"⚠️ Erro ao mover denúncia {protocolo} para finalizadas: {response.status_code}")
+                    
+            except Exception as e:
+                print(f"⚠️ Erro ao conectar com backend de finalizadas: {e}")
+                # Continua mesmo se falhar, pois a denúncia já foi finalizada no banco principal
         else:
             db.execute('''
                 UPDATE denuncias SET status = ?, finalizada_em = NULL WHERE protocolo = ?
             ''', (status, protocolo))
+            db.commit()
             
-        db.commit()
         return jsonify({'ok': True})
         
     except Exception as e:

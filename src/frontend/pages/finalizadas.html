@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Denúncias Finalizadas - Ouvidoria da Polícia Militar</title>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2.6.4/dist/email.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="shortcut icon" href="../assets/Logo_PMESP.png" type="image/x-icon">
+    <style>
+        .finalizadas-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .finalizadas-header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .finalizadas-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .finalizadas-header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .finalizadas-list {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .finalizada-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s ease;
+        }
+        
+        .finalizada-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .finalizada-item:last-child {
+            border-bottom: none;
+        }
+        
+        .finalizada-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .protocolo {
+            background: #28a745;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .data-finalizacao {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .finalizada-content {
+            margin-bottom: 15px;
+        }
+        
+        .finalizada-nome {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .finalizada-tipo {
+            display: inline-block;
+            background: #e9ecef;
+            color: #495057;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+        }
+        
+        .finalizada-descricao {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .finalizada-youtube {
+            margin-top: 10px;
+        }
+        
+        .finalizada-youtube a {
+            color: #dc3545;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .finalizada-youtube a:hover {
+            text-decoration: underline;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-input {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        
+        .filter-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+        }
+        
+        @media (max-width: 768px) {
+            .finalizadas-header h1 {
+                font-size: 2em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .finalizada-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Ouvidoria PM NC</h1>
+            <img class="logo-pmesp" src="../assets/Logo_PMESP.png" alt="Logo PMESP">
+            <button id="menu-toggle" class="menu-toggle" aria-label="Abrir menu">
+                <span>&#9776;</span>
+            </button>
+        </div>
+        <nav>
+            <div class="nav-menu">
+                <ul>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="denunciar.html">Denunciar</a></li>
+                    <li><a href="noticias.html">Notícias</a></li>
+                    <li><a href="finalizadas.html">Finalizadas</a></li>
+                    <li><a href="index.html#contato">Contato</a></li>
+                    <li><a href="../components/admin/admin.html" target="_blank">Painel</a></li>
+                </ul>                   
+            </div>
+        </nav>
+    </header>
+    
+    <main class="finalizadas-container">
+        <div class="finalizadas-header">
+            <h1>📋 Denúncias Finalizadas</h1>
+            <p>Histórico completo de denúncias que foram finalizadas pela nossa equipe</p>
+        </div>
+        
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalFinalizadas">-</div>
+                <div class="stat-label">Total Finalizadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="denuncias">-</div>
+                <div class="stat-label">Denúncias</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="elogios">-</div>
+                <div class="stat-label">Elogios</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="sugestoes">-</div>
+                <div class="stat-label">Sugestões</div>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <input type="text" id="searchInput" class="filter-input" placeholder="Buscar por protocolo, nome ou descrição...">
+                <select id="tipoFilter" class="filter-select">
+                    <option value="">Todos os tipos</option>
+                    <option value="Denúncia">Denúncias</option>
+                    <option value="Elogio">Elogios</option>
+                    <option value="Sugestão">Sugestões</option>
+                </select>
+                <input type="date" id="dataFilter" class="filter-input" placeholder="Filtrar por data">
+            </div>
+        </div>
+        
+        <div class="finalizadas-list" id="finalizadasList">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Carregando denúncias finalizadas...</p>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 Ouvidoria da Polícia Militar da Nova Capital. Todos os direitos reservados.</p>
+    </footer>
+    
+    <script>
+        let finalizadasData = [];
+        
+        // Carregar denúncias finalizadas
+        async function carregarFinalizadas() {
+            const finalizadasList = document.getElementById('finalizadasList');
+            
+            try {
+                // Tentar carregar do backend de finalizadas
+                const response = await fetch('http://localhost:5001/api/finalizadas');
+                
+                if (response.ok) {
+                    const finalizadas = await response.json();
+                    finalizadasData = finalizadas;
+                    
+                    if (finalizadas.length === 0) {
+                        finalizadasList.innerHTML = `
+                            <div class="empty-state">
+                                <h3>Nenhuma denúncia finalizada</h3>
+                                <p>Ainda não há denúncias finalizadas no sistema.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    renderizarFinalizadas(finalizadas);
+                    atualizarEstatisticas(finalizadas);
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.log('Erro ao carregar finalizadas:', error);
+                finalizadasList.innerHTML = `
+                    <div class="error-message">
+                        <h3>Erro ao carregar denúncias finalizadas</h3>
+                        <p>Não foi possível conectar ao servidor. Verifique se o backend de finalizadas está rodando.</p>
+                        <p><strong>Erro:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Renderizar lista de finalizadas
+        function renderizarFinalizadas(finalizadas) {
+            const finalizadasList = document.getElementById('finalizadasList');
+            
+            finalizadasList.innerHTML = finalizadas.map(finalizada => {
+                const dataFinalizacao = new Date(finalizada.data_finalizacao);
+                const dataFormatada = dataFinalizacao.toLocaleDateString('pt-BR') + ' ' + 
+                                    dataFinalizacao.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                
+                const youtubeLink = finalizada.youtube ? `
+                    <div class="finalizada-youtube">
+                        <a href="${finalizada.youtube}" target="_blank" rel="noopener">
+                            🎥 Ver vídeo no YouTube
+                        </a>
+                    </div>
+                ` : '';
+                
+                return `
+                    <div class="finalizada-item">
+                        <div class="finalizada-header">
+                            <span class="protocolo">${finalizada.protocolo}</span>
+                            <span class="data-finalizacao">${dataFormatada}</span>
+                        </div>
+                        <div class="finalizada-content">
+                            <div class="finalizada-nome">${finalizada.nome || 'Anônimo'}</div>
+                            <div class="finalizada-tipo">${finalizada.tipo}</div>
+                            <div class="finalizada-descricao">${finalizada.descricao}</div>
+                            ${youtubeLink}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Atualizar estatísticas
+        function atualizarEstatisticas(finalizadas) {
+            const total = finalizadas.length;
+            const denuncias = finalizadas.filter(f => f.tipo === 'Denúncia').length;
+            const elogios = finalizadas.filter(f => f.tipo === 'Elogio').length;
+            const sugestoes = finalizadas.filter(f => f.tipo === 'Sugestão').length;
+            
+            document.getElementById('totalFinalizadas').textContent = total;
+            document.getElementById('denuncias').textContent = denuncias;
+            document.getElementById('elogios').textContent = elogios;
+            document.getElementById('sugestoes').textContent = sugestoes;
+        }
+        
+        // Filtros
+        function aplicarFiltros() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const tipoFilter = document.getElementById('tipoFilter').value;
+            const dataFilter = document.getElementById('dataFilter').value;
+            
+            let finalizadasFiltradas = finalizadasData.filter(finalizada => {
+                // Filtro de busca
+                const matchesSearch = !searchTerm || 
+                    finalizada.protocolo.toLowerCase().includes(searchTerm) ||
+                    (finalizada.nome && finalizada.nome.toLowerCase().includes(searchTerm)) ||
+                    finalizada.descricao.toLowerCase().includes(searchTerm);
+                
+                // Filtro de tipo
+                const matchesTipo = !tipoFilter || finalizada.tipo === tipoFilter;
+                
+                // Filtro de data
+                let matchesData = true;
+                if (dataFilter) {
+                    const dataFinalizacao = new Date(finalizada.data_finalizacao);
+                    const dataFiltro = new Date(dataFilter);
+                    matchesData = dataFinalizacao.toDateString() === dataFiltro.toDateString();
+                }
+                
+                return matchesSearch && matchesTipo && matchesData;
+            });
+            
+            renderizarFinalizadas(finalizadasFiltradas);
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarFinalizadas();
+            
+            // Filtros
+            document.getElementById('searchInput').addEventListener('input', aplicarFiltros);
+            document.getElementById('tipoFilter').addEventListener('change', aplicarFiltros);
+            document.getElementById('dataFilter').addEventListener('change', aplicarFiltros);
+            
+            // Menu mobile
+            const menuToggle = document.getElementById('menu-toggle');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+                
+                // Fechar menu ao clicar fora
+                document.addEventListener('click', function(event) {
+                    if (!menuToggle.contains(event.target) && !navMenu.contains(event.target)) {
+                        navMenu.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html> 
