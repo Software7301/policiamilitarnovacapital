@@ -351,7 +351,7 @@ class InteractiveUI {
 // Inicializar UI interativa
 const interactiveUI = new InteractiveUI();
 
-// Funcionalidade do campo de pesquisa no footer
+// Funcionalidade do campo de pesquisa no footer - Versão super interativa
 document.addEventListener('DOMContentLoaded', function() {
     const footerSearch = document.getElementById('footerSearch');
     const footerSearchBtn = document.getElementById('footerSearchBtn');
@@ -361,19 +361,49 @@ document.addEventListener('DOMContentLoaded', function() {
         function performSearch() {
             const searchTerm = footerSearch.value.trim();
             if (searchTerm) {
+                // Adicionar efeito de loading
+                footerSearchBtn.classList.add('loading');
+                
                 // Verificar se é um protocolo (4 dígitos)
                 if (/^\d{4}$/.test(searchTerm)) {
                     // Redirecionar para a página de acompanhamento com o protocolo
-                    window.location.href = `denunciar.html?protocolo=${searchTerm}`;
+                    setTimeout(() => {
+                        window.location.href = `denunciar.html?protocolo=${searchTerm}`;
+                    }, 500);
                 } else {
                     // Pesquisa geral - pode redirecionar para notícias ou mostrar resultados
-                    window.location.href = `noticias.html?search=${encodeURIComponent(searchTerm)}`;
+                    setTimeout(() => {
+                        window.location.href = `noticias.html?search=${encodeURIComponent(searchTerm)}`;
+                    }, 500);
                 }
             }
         }
         
+        // Função para adicionar efeito de ripple
+        function addRippleEffect(element, event) {
+            const ripple = document.createElement('span');
+            const rect = element.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple-effect');
+            
+            element.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+        
         // Event listeners
-        footerSearchBtn.addEventListener('click', performSearch);
+        footerSearchBtn.addEventListener('click', function(e) {
+            addRippleEffect(this, e);
+            performSearch();
+        });
         
         footerSearch.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -384,10 +414,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Efeito de foco no input
         footerSearch.addEventListener('focus', function() {
             this.parentElement.classList.add('focused');
+            this.style.transform = 'scale(1.02)';
         });
         
         footerSearch.addEventListener('blur', function() {
             this.parentElement.classList.remove('focused');
+            this.style.transform = '';
         });
         
         // Animação de placeholder
@@ -398,6 +430,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.remove('has-content');
             }
         });
+        
+        // Efeitos de hover para o botão de pesquisa
+        footerSearchBtn.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1) translateY(-2px)';
+        });
+        
+        footerSearchBtn.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+        
+        // Efeitos de ripple para botões de navegação
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                addRippleEffect(this, e);
+            });
+        });
+        
+        // Animação de entrada para o footer
+        const bottomNav = document.querySelector('.bottom-nav');
+        if (bottomNav) {
+            bottomNav.style.opacity = '0';
+            bottomNav.style.transform = 'translateY(100%)';
+            
+            setTimeout(() => {
+                bottomNav.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                bottomNav.style.opacity = '1';
+                bottomNav.style.transform = 'translateY(0)';
+            }, 300);
+        }
     }
 });
 
