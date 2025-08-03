@@ -108,8 +108,11 @@ def criar_denuncia():
         # Usa o protocolo enviado pelo frontend ou gera um novo
         protocolo = data.get('protocolo')
         print(f"Protocolo recebido do frontend: {protocolo}")
+        
+        # Inicializar conexão com banco
+        db = get_db()
+        
         if not protocolo:
-            db = get_db()
             cur = db.execute('SELECT COUNT(*) FROM denuncias')
             count = cur.fetchone()[0] + 1
             protocolo = str(count).zfill(4)
