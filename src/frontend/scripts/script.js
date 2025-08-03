@@ -351,6 +351,56 @@ class InteractiveUI {
 // Inicializar UI interativa
 const interactiveUI = new InteractiveUI();
 
+// Funcionalidade do campo de pesquisa no footer
+document.addEventListener('DOMContentLoaded', function() {
+    const footerSearch = document.getElementById('footerSearch');
+    const footerSearchBtn = document.getElementById('footerSearchBtn');
+    
+    if (footerSearch && footerSearchBtn) {
+        // Função para realizar a pesquisa
+        function performSearch() {
+            const searchTerm = footerSearch.value.trim();
+            if (searchTerm) {
+                // Verificar se é um protocolo (4 dígitos)
+                if (/^\d{4}$/.test(searchTerm)) {
+                    // Redirecionar para a página de acompanhamento com o protocolo
+                    window.location.href = `denunciar.html?protocolo=${searchTerm}`;
+                } else {
+                    // Pesquisa geral - pode redirecionar para notícias ou mostrar resultados
+                    window.location.href = `noticias.html?search=${encodeURIComponent(searchTerm)}`;
+                }
+            }
+        }
+        
+        // Event listeners
+        footerSearchBtn.addEventListener('click', performSearch);
+        
+        footerSearch.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        // Efeito de foco no input
+        footerSearch.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        footerSearch.addEventListener('blur', function() {
+            this.parentElement.classList.remove('focused');
+        });
+        
+        // Animação de placeholder
+        footerSearch.addEventListener('input', function() {
+            if (this.value.length > 0) {
+                this.classList.add('has-content');
+            } else {
+                this.classList.remove('has-content');
+            }
+        });
+    }
+});
+
 if (isDenunciaPage) {
     // Elementos específicos da página de denúncia
     form = document.getElementById('denunciaForm');
