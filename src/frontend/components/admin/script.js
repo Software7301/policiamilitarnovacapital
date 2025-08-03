@@ -745,18 +745,26 @@ async function handleStatusChange(protocolo, novoStatus) {
     try {
         console.log(`Alterando status do protocolo ${protocolo} para ${novoStatus}`);
         
-        // Atualizar APENAS no servidor
+        // Atualizar no servidor principal
         try {
             await atualizarStatusNoServidor(protocolo, novoStatus);
-            console.log('✅ Status atualizado no servidor com sucesso!');
+            console.log('✅ Status atualizado no servidor principal com sucesso!');
             
-            // Recarregar denúncias do servidor
-            await carregarDenuncias();
-            
-            // Se foi finalizada, mostrar notificação
+            // Se foi finalizada, mover para backend de finalizadas
             if (novoStatus === 'Finalizada') {
+                try {
+                    await moverParaFinalizadas(protocolo);
+                    console.log('✅ Denúncia movida para backend de finalizadas!');
+                } catch (finalizadasError) {
+                    console.log('⚠️ Erro ao mover para finalizadas:', finalizadasError.message);
+                }
+                
+                // Mostrar notificação
                 mostrarNotificacaoDenunciaFinalizada(protocolo);
             }
+            
+            // Recarregar denúncias do servidor (vai filtrar as finalizadas)
+            await carregarDenuncias();
             
         } catch (serverError) {
             console.log('❌ Erro ao atualizar no servidor:', serverError.message);
@@ -799,6 +807,53 @@ async function atualizarStatusNoServidor(protocolo, novoStatus) {
         
     } catch (error) {
         console.log('❌ Erro ao atualizar no servidor:', error.message);
+        throw error;
+    }
+}
+
+async function moverParaFinalizadas(protocolo) {
+    try {
+        // Primeiro, buscar os dados da denúncia no servidor principal
+        const response = await fetch(`https://policiamilitarnovacapital.onrender.com/api/denuncias/${protocolo}`);
+        
+        if (!response.ok) {
+            throw new Error(`Erro ao buscar denúncia: ${response.status}`);
+        }
+        
+        const denuncia = await response.json();
+        
+        // Preparar dados para enviar ao backend de finalizadas
+        const dadosFinalizada = {
+            protocolo: denuncia.protocolo,
+            nome: denuncia.nome,
+            rg: denuncia.rg,
+            tipo: denuncia.tipo,
+            descricao: denuncia.descricao,
+            youtube: denuncia.youtube || '',
+            data_criacao: denuncia.dataCriacao || new Date().toISOString(),
+            data_finalizacao: new Date().toISOString(),
+            observacoes: 'Movida automaticamente do painel admin'
+        };
+        
+        // Enviar para o backend de finalizadas
+        const finalizadasResponse = await fetch('https://ouvidoria-finalizadas.onrender.com/api/finalizadas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(dadosFinalizada)
+        });
+        
+        if (!finalizadasResponse.ok) {
+            throw new Error(`Erro ao enviar para finalizadas: ${finalizadasResponse.status}`);
+        }
+        
+        console.log('✅ Denúncia movida para finalizadas com sucesso!');
+        return await finalizadasResponse.json();
+        
+    } catch (error) {
+        console.log('❌ Erro ao mover para finalizadas:', error.message);
         throw error;
     }
 }

@@ -158,41 +158,66 @@ async function sendToDatabase(responses) {
 
 async function buscarProtocolo(protocolo) {
   try {
-    // Buscar APENAS no servidor
-    console.log('Buscando protocolo no servidor...');
+    console.log('Buscando protocolo:', protocolo);
     
-    const urls = [
-      'https://policiamilitarnovacapital.onrender.com/api/denuncias'
-    ];
-    
-    for (const url of urls) {
-      try {
-        console.log('Tentando buscar em:', url);
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json'
-          }
-        });
-        
-        if (response.ok) {
-          const denuncias = await response.json();
-          console.log('Denúncias encontradas no servidor:', denuncias);
-          
-          const denuncia = denuncias.find(d => d.protocolo === protocolo);
-          
-          if (denuncia) {
-            console.log('Denúncia encontrada no servidor:', denuncia);
-            return denuncia;
-          }
+    // 1. Primeiro buscar no backend principal (denúncias ativas)
+    try {
+      console.log('Buscando no backend principal...');
+      const response = await fetch(`https://policiamilitarnovacapital.onrender.com/api/denuncias/${protocolo}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
         }
-      } catch (error) {
-        console.log('Erro ao buscar em:', url, error);
-        continue;
+      });
+      
+      if (response.ok) {
+        const denuncia = await response.json();
+        console.log('✅ Denúncia encontrada no backend principal:', denuncia);
+        return denuncia;
       }
+    } catch (error) {
+      console.log('Erro ao buscar no backend principal:', error);
     }
     
-    console.log('Protocolo não encontrado no servidor');
+    // 2. Se não encontrou, buscar no backend de finalizadas
+    try {
+      console.log('Buscando no backend de finalizadas...');
+      const finalizadasResponse = await fetch(`https://ouvidoria-finalizadas.onrender.com/api/finalizadas/${protocolo}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (finalizadasResponse.ok) {
+        const denunciaFinalizada = await finalizadasResponse.json();
+        console.log('✅ Denúncia encontrada no backend de finalizadas:', denunciaFinalizada);
+        return denunciaFinalizada;
+      }
+    } catch (error) {
+      console.log('Erro ao buscar no backend de finalizadas:', error);
+    }
+    
+    // 3. Se não encontrou em nenhum, buscar via proxy do backend principal
+    try {
+      console.log('Buscando via proxy do backend principal...');
+      const proxyResponse = await fetch(`https://policiamilitarnovacapital.onrender.com/api/finalizadas/${protocolo}`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (proxyResponse.ok) {
+        const denunciaViaProxy = await proxyResponse.json();
+        console.log('✅ Denúncia encontrada via proxy:', denunciaViaProxy);
+        return denunciaViaProxy;
+      }
+    } catch (error) {
+      console.log('Erro ao buscar via proxy:', error);
+    }
+    
+    console.log('❌ Protocolo não encontrado em nenhum backend');
     return null;
   } catch (error) {
     console.error("Erro ao buscar protocolo:", error);
