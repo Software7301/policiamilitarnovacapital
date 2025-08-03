@@ -1,11 +1,12 @@
 [build]
-  command = "pip install -r requirements.txt"
+  command = "echo 'Frontend build completed'"
   publish = "src/frontend"
 
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/app"
+  to = "https://policiamilitarnovacapital.onrender.com/api/:splat"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
