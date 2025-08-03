@@ -541,7 +541,7 @@ if (isDenunciaPage) {
         
         // Animar elementos sequencialmente
         if (welcomeTitle) {
-            typeWriter(welcomeTitle, 'Bem-vindo à Ouvidoria', 50, () => {
+            typeWriter(welcomeTitle, 'Bem Vindo ao Site da Nova Capital', 50, () => {
                 if (welcomeSubtitle) {
                     setTimeout(() => {
                         typeWriter(welcomeSubtitle, 'Sistema de Ouvidoria Interativo', 30, () => {

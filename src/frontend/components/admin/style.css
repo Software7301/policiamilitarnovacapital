@@ -166,6 +166,15 @@ body {
     font-size: 16px;
     transition: all 0.3s ease;
     background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    padding-right: 50px;
 }
 
 .input-group input:focus,
@@ -176,6 +185,54 @@ body {
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     transform: translateY(-2px);
     background: rgba(255, 255, 255, 1);
+}
+
+/* Estilização específica para selects de departamento */
+.input-group select option {
+    padding: 12px 15px;
+    font-size: 16px;
+    background: #ffffff;
+    color: #333;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.input-group select option:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    transform: scale(1.02);
+}
+
+.input-group select option:checked {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* Estilo para o placeholder do select */
+.input-group select option[value=""] {
+    color: #999;
+    font-style: italic;
+    background: #f8f9fa;
+}
+
+/* Animação para o select quando focado */
+.input-group select:focus {
+    animation: selectPulse 0.6s ease;
+}
+
+@keyframes selectPulse {
+    0% { transform: translateY(-2px) scale(1); }
+    50% { transform: translateY(-2px) scale(1.02); }
+    100% { transform: translateY(-2px) scale(1); }
+}
+
+/* Hover effect para o select */
+.input-group select:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    transform: translateY(-1px);
 }
 
 .input-icon {
