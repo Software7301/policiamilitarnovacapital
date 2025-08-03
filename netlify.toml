@@ -1,6 +1,5 @@
 [build]
   publish = "src/frontend"
-  command = "echo 'Static site - no build required'"
 
 [[redirects]]
   from = "/api/*"
