@@ -693,7 +693,7 @@ function mostrarResultadoPesquisa(denuncia, protocolo) {
                     <p><strong>RG:</strong> ${denuncia.rg}</p>
                     <p><strong>Tipo:</strong> ${denuncia.tipo}</p>
                     <p><strong>Descrição:</strong> ${denuncia.descricao}</p>
-                    ${denuncia.linkYoutube ? `<p><strong>Link YouTube:</strong> <a href="${denuncia.linkYoutube}" target="_blank">${denuncia.linkYoutube}</a></p>` : ''}
+                    ${denuncia.youtube ? `<p><strong>Link YouTube:</strong> <a href="${denuncia.youtube}" target="_blank" rel="noopener">🎥 Ver vídeo no YouTube</a></p>` : ''}
                     <p><strong>Data de Criação:</strong> ${new Date(denuncia.dataCriacao || Date.now()).toLocaleDateString()}</p>
                     ${isFinalizada ? `<p><strong>Data de Finalização:</strong> ${new Date(denuncia.dataFinalizacao || Date.now()).toLocaleDateString()}</p>` : ''}
                 </div>
@@ -778,7 +778,7 @@ function renderizarDenuncias(denuncias) {
                 <p><strong>RG:</strong> ${denuncia.rg}</p>
                 <p><strong>Tipo:</strong> ${denuncia.tipo}</p>
                 <p><strong>Descrição:</strong> ${denuncia.descricao}</p>
-                ${denuncia.linkYoutube ? `<p><strong>Link YouTube:</strong> <a href="${denuncia.linkYoutube}" target="_blank">${denuncia.linkYoutube}</a></p>` : ''}
+                ${denuncia.youtube ? `<p><strong>Link YouTube:</strong> <a href="${denuncia.youtube}" target="_blank" rel="noopener">🎥 Ver vídeo no YouTube</a></p>` : ''}
                 </div>
             <div class="denuncia-actions">
                 <select class="status-select" data-protocolo="${denuncia.protocolo}">
