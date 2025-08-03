@@ -461,14 +461,43 @@ body {
 }
 
 .logout-btn {
-    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
     color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
+    border: 2px solid transparent;
+    padding: 14px 24px;
+    border-radius: 12px;
     font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border-color: rgba(255, 107, 107, 0.3);
+}
+
+.logout-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.6s ease;
+}
+
+.logout-btn:hover::before {
+    width: 200px;
+    height: 200px;
 }
 
 .setup-btn:hover,
@@ -482,8 +511,14 @@ body {
 }
 
 .logout-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(245, 101, 101, 0.4);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.logout-btn:active {
+    transform: translateY(-1px) scale(0.98);
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
 }
 
 /* Dashboard */
@@ -561,37 +596,77 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 15px;
+    padding: 16px 20px;
     border-radius: 12px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 2px solid transparent;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 4px 8px;
 }
 
 .nav-item::before {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-    transition: left 0.5s;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.nav-item::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.6s ease;
 }
 
 .nav-item:hover::before {
-    left: 100%;
+    opacity: 1;
+}
+
+.nav-item:hover::after {
+    width: 150px;
+    height: 150px;
 }
 
 .nav-item:hover {
     background: rgba(255, 255, 255, 0.1);
-    transform: translateX(5px);
+    transform: translateX(8px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .nav-item.active {
-    background: rgba(102, 126, 234, 0.3);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    transform: translateX(5px) scale(1.05);
+    border-color: rgba(255, 255, 255, 0.3);
+    animation: pulse 2s infinite;
+}
+
+.nav-item.active::before {
+    opacity: 0;
+}
+
+.nav-item.active::after {
+    width: 180px;
+    height: 180px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
 }
 
 .nav-indicator {
@@ -679,33 +754,124 @@ body {
     animation: pulse 2s infinite;
 }
 
+/* Botões modernos e interativos */
 .refresh-btn,
-.delete-btn {
+.delete-btn,
+.search-btn,
+.check-new-btn,
+.add-noticia-btn,
+.save-btn,
+.logout-btn,
+.setup-btn {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
+    border: 2px solid transparent;
+    padding: 14px 24px;
+    border-radius: 12px;
     font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    min-width: 120px;
+    justify-content: center;
 }
 
-.refresh-btn:hover,
-.delete-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+/* Efeito de ripple para todos os botões */
+.refresh-btn::before, .delete-btn::before, .search-btn::before, .check-new-btn::before,
+.add-noticia-btn::before, .save-btn::before, .logout-btn::before, .setup-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.6s ease;
+}
+
+.refresh-btn:hover::before, .delete-btn:hover::before, .search-btn:hover::before, .check-new-btn:hover::before,
+.add-noticia-btn:hover::before, .save-btn:hover::before, .logout-btn:hover::before, .setup-btn:hover::before {
+    width: 200px;
+    height: 200px;
+}
+
+/* Hover effects */
+.refresh-btn:hover, .delete-btn:hover, .search-btn:hover, .check-new-btn:hover,
+.add-noticia-btn:hover, .save-btn:hover, .logout-btn:hover, .setup-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Active state */
+.refresh-btn:active, .delete-btn:active, .search-btn:active, .check-new-btn:active,
+.add-noticia-btn:active, .save-btn:active, .logout-btn:active, .setup-btn:active {
+    transform: translateY(-1px) scale(0.98);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading state */
+.refresh-btn.loading, .delete-btn.loading, .search-btn.loading, .check-new-btn.loading,
+.add-noticia-btn.loading, .save-btn.loading, .logout-btn.loading, .setup-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.refresh-btn.loading .btn-icon, .delete-btn.loading .btn-icon, .search-btn.loading .btn-icon,
+.check-new-btn.loading .btn-icon, .add-noticia-btn.loading .btn-icon, .save-btn.loading .btn-icon,
+.logout-btn.loading .btn-icon, .setup-btn.loading .btn-icon {
+    animation: spin 1s linear infinite;
+}
+
+/* Cores específicas para cada botão */
+.search-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.refresh-btn {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-color: rgba(79, 172, 254, 0.3);
+}
+
+.check-new-btn {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    border-color: rgba(67, 233, 123, 0.3);
 }
 
 .delete-btn {
-    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    border-color: rgba(255, 107, 107, 0.3);
 }
 
-.delete-btn:hover {
-    box-shadow: 0 8px 20px rgba(245, 101, 101, 0.4);
+.add-noticia-btn {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    color: #333;
+    border-color: rgba(168, 237, 234, 0.3);
+}
+
+.save-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.logout-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    border-color: rgba(255, 107, 107, 0.3);
+}
+
+.setup-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: rgba(102, 126, 234, 0.3);
 }
 
 .btn-icon {
@@ -1306,6 +1472,23 @@ body {
     .loading-spinner,
     .loading-spinner-large {
         animation: none;
+    }
+}
+
+/* Efeito de ripple para botões */
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
     }
 }
 

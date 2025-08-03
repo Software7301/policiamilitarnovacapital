@@ -1988,6 +1988,85 @@ function gerarProtocoloUnico() {
     return protocolo;
 }
 
+// Melhorias de interatividade para os botões
+function addRippleEffect(element) {
+    const ripple = document.createElement('span');
+    const rect = element.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = event.clientX - rect.left - size / 2;
+    const y = event.clientY - rect.top - size / 2;
+    
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    ripple.classList.add('ripple-effect');
+    
+    element.appendChild(ripple);
+    
+    setTimeout(() => {
+        ripple.remove();
+    }, 600);
+}
+
+// Adicionar efeitos de interatividade para todos os botões
+function setupButtonInteractions() {
+    const buttons = document.querySelectorAll('.search-btn, .refresh-btn, .check-new-btn, .delete-btn, .add-noticia-btn, .save-btn, .logout-btn, .setup-btn');
+    
+    buttons.forEach(button => {
+        // Efeito de ripple no clique
+        button.addEventListener('click', function(e) {
+            addRippleEffect(this);
+            
+            // Adicionar classe de loading temporariamente
+            this.classList.add('loading');
+            setTimeout(() => {
+                this.classList.remove('loading');
+            }, 1000);
+        });
+        
+        // Melhorar feedback visual
+        button.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-3px) scale(1.02)';
+        });
+        
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+        
+        button.addEventListener('mousedown', function() {
+            this.style.transform = 'translateY(-1px) scale(0.98)';
+        });
+        
+        button.addEventListener('mouseup', function() {
+            this.style.transform = 'translateY(-3px) scale(1.02)';
+        });
+    });
+}
+
+// Melhorar navegação do sidebar
+function setupSidebarInteractions() {
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Adicionar efeito de ripple
+            addRippleEffect(this);
+            
+            // Animação suave da transição
+            this.style.transition = 'all 0.3s ease';
+            setTimeout(() => {
+                this.style.transition = '';
+            }, 300);
+        });
+    });
+}
+
+// Inicializar melhorias de interatividade
+document.addEventListener('DOMContentLoaded', function() {
+    setupButtonInteractions();
+    setupSidebarInteractions();
+});
+
 
 
 
