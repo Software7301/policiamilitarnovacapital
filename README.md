@@ -185,4 +185,4 @@ Para suporte ou dúvidas, entre em contato através do sistema de issues do GitH
 
 ---
 
-**Desenvolvido com ❤️ para a Polícia Militar da Nova Capital** 
+**Desenvolvido com ❤️ para a Polícia Militar da Nova Capital** # backend-finalizadas
