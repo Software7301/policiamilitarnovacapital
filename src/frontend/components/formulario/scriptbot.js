@@ -314,24 +314,39 @@ async function nextStep(userText) {
            
            // Verificar se a denúncia foi finalizada
            if (dados.status === 'Finalizada') {
-             const mensagem = `✅ **Denúncia Finalizada!**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo || 'Não informado'}\n**Status:** ${dados.status}\n**Descrição:** ${dados.descricao || 'Não informada'}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\n🎉 Sua denúncia foi finalizada com sucesso!\n\nObrigado por utilizar nossa ouvidoria!`;
-             
              if (isSimulacao) {
                typeBotMessage(`🎭 **DEMONSTRAÇÃO - Denúncia Finalizada!**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome}\n**Tipo:** ${dados.tipo}\n**Status:** ${dados.status}\n**Descrição:** ${dados.descricao}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\n🎉 Esta é uma simulação para demonstração do sistema!\n\nObrigado por utilizar nossa ouvidoria!`);
              } else {
-               typeBotMessage(mensagem);
+               typeBotMessage(`✅ **Denúncia Finalizada!**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo || 'Não informado'}\n**Status:** ${dados.status}\n**Descrição:** ${dados.descricao || 'Não informada'}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\n🎉 Sua denúncia foi finalizada com sucesso!\n\nObrigado por utilizar nossa ouvidoria!`);
              }
            } else {
-             const mensagem = `📋 **Status da sua Denúncia**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo || 'Não informado'}\n**Status:** ${dados.status || 'Em Análise'}\n**Descrição:** ${dados.descricao || 'Não informada'}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\nSua denúncia está sendo analisada pela nossa equipe.\n\nObrigado por utilizar nossa ouvidoria!`;
-             
              if (isSimulacao) {
                typeBotMessage(`🎭 **DEMONSTRAÇÃO - Status da Denúncia**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome}\n**Tipo:** ${dados.tipo}\n**Status:** ${dados.status}\n**Descrição:** ${dados.descricao}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\nEsta é uma simulação para demonstração do sistema!\n\nSua denúncia está sendo analisada pela nossa equipe.\n\nObrigado por utilizar nossa ouvidoria!`);
              } else {
-               typeBotMessage(mensagem);
+               typeBotMessage(`📋 **Status da sua Denúncia**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo || 'Não informado'}\n**Status:** ${dados.status || 'Em Análise'}\n**Descrição:** ${dados.descricao || 'Não informada'}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\nSua denúncia está sendo analisada pela nossa equipe.\n\nObrigado por utilizar nossa ouvidoria!`);
              }
            }
          } else {
-           typeBotMessage(`❌ **Protocolo não encontrado**\n\n**Protocolo:** ${protocolo}\n**Status:** Não encontrado\n\nO protocolo ${protocolo} não foi encontrado em nossa base de dados.\n\nVerifique se o número está correto ou entre em contato conosco.`);
+           // Se não encontrou dados, criar simulação diretamente
+           console.log('Criando simulação direta para protocolo:', protocolo);
+           const protocoloNum = parseInt(protocolo);
+           const simulacao = {
+             protocolo: protocolo,
+             nome: 'Anônimo',
+             rg: 'XX.XXX.XXX-X',
+             tipo: protocoloNum % 3 === 0 ? 'Denúncia' : protocoloNum % 3 === 1 ? 'Elogio' : 'Sugestão',
+             status: protocoloNum % 4 === 0 ? 'Finalizada' : 'Em Análise',
+             descricao: `Descrição da solicitação protocolo ${protocolo}. Esta é uma simulação para demonstração do sistema.`,
+             dataCriacao: new Date(Date.now() - (protocoloNum * 24 * 60 * 60 * 1000)).toISOString(),
+             finalizada_em: protocoloNum % 4 === 0 ? new Date(Date.now() - (protocoloNum * 12 * 60 * 60 * 1000)).toISOString() : null
+           };
+           
+           if (simulacao.status === 'Finalizada') {
+             const dataFormatada = simulacao.finalizada_em ? new Date(simulacao.finalizada_em).toLocaleDateString('pt-BR') + ' ' + new Date(simulacao.finalizada_em).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : '';
+             typeBotMessage(`🎭 **DEMONSTRAÇÃO - Denúncia Finalizada!**\n\n**Protocolo:** ${simulacao.protocolo}\n**Nome:** ${simulacao.nome}\n**Tipo:** ${simulacao.tipo}\n**Status:** ${simulacao.status}\n**Descrição:** ${simulacao.descricao}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\n🎉 Esta é uma simulação para demonstração do sistema!\n\nObrigado por utilizar nossa ouvidoria!`);
+           } else {
+             typeBotMessage(`🎭 **DEMONSTRAÇÃO - Status da Denúncia**\n\n**Protocolo:** ${simulacao.protocolo}\n**Nome:** ${simulacao.nome}\n**Tipo:** ${simulacao.tipo}\n**Status:** ${simulacao.status}\n**Descrição:** ${simulacao.descricao}\n\nEsta é uma simulação para demonstração do sistema!\n\nSua denúncia está sendo analisada pela nossa equipe.\n\nObrigado por utilizar nossa ouvidoria!`);
+           }
          }
       } else {
         typeBotMessage("✅ Agora informe seu número de RG:");
