@@ -285,7 +285,7 @@ async function nextStep(userText) {
         
         const dados = await buscarProtocolo(protocolo);
         
-        if (dados) {
+        if (dados && dados.protocolo) {
           let dataFormatada = '';
           if (dados.finalizada_em) {
             const data = new Date(dados.finalizada_em);
@@ -294,12 +294,12 @@ async function nextStep(userText) {
           
           // Verificar se a denúncia foi finalizada
           if (dados.status === 'Finalizada') {
-            typeBotMessage(`✅ **Denúncia Finalizada!**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo}\n**Status:** ${dados.status}\n**Descrição:** ${dados.descricao}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\n🎉 Sua denúncia foi finalizada com sucesso!\n\nObrigado por utilizar nossa ouvidoria!`);
+            typeBotMessage(`✅ **Denúncia Finalizada!**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo || 'Não informado'}\n**Status:** ${dados.status}\n**Descrição:** ${dados.descricao || 'Não informada'}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\n🎉 Sua denúncia foi finalizada com sucesso!\n\nObrigado por utilizar nossa ouvidoria!`);
           } else {
-            typeBotMessage(`📋 **Status da sua Denúncia**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo}\n**Status:** ${dados.status}\n**Descrição:** ${dados.descricao}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\nSua denúncia está sendo analisada pela nossa equipe.\n\nObrigado por utilizar nossa ouvidoria!`);
+            typeBotMessage(`📋 **Status da sua Denúncia**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo || 'Não informado'}\n**Status:** ${dados.status || 'Em Análise'}\n**Descrição:** ${dados.descricao || 'Não informada'}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\nSua denúncia está sendo analisada pela nossa equipe.\n\nObrigado por utilizar nossa ouvidoria!`);
           }
         } else {
-          typeBotMessage("📋 **Status da sua Denúncia**\n\n**Protocolo:** " + protocolo + "\n**Status:** Em Análise\n\nSua denúncia está sendo analisada pela nossa equipe.\n\nObrigado por utilizar nossa ouvidoria!");
+          typeBotMessage(`❌ **Protocolo não encontrado**\n\n**Protocolo:** ${protocolo}\n**Status:** Não encontrado\n\nO protocolo ${protocolo} não foi encontrado em nossa base de dados.\n\nVerifique se o número está correto ou entre em contato conosco.`);
         }
       } else {
         typeBotMessage("✅ Agora informe seu número de RG:");
