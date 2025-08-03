@@ -787,9 +787,7 @@ async function atualizarStatusNoServidor(protocolo, novoStatus) {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
+                'Accept': 'application/json'
             },
             body: JSON.stringify({ 
                 status: novoStatus,
