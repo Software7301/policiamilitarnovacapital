@@ -191,9 +191,9 @@ def atualizar_status(protocolo):
                     'observacoes': 'Movida automaticamente do sistema principal'
                 }
                 
-                # Tentar enviar para o backend de finalizadas
-                response = requests.post('http://localhost:5001/api/finalizadas', 
-                                      json=dados_finalizada, timeout=5)
+                # Tentar enviar para o backend de finalizadas no Render
+                response = requests.post('https://ouvidoria-finalizadas.onrender.com/api/finalizadas', 
+                                      json=dados_finalizada, timeout=10)
                 
                 if response.status_code == 201:
                     print(f"✅ Denúncia {protocolo} movida para finalizadas")
@@ -246,6 +246,43 @@ def deletar_denuncia(protocolo):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/finalizadas', methods=['GET'])
+def buscar_finalizadas():
+    """Busca denúncias finalizadas no servidor Render"""
+    try:
+        import requests
+        
+        # Buscar no servidor Render de finalizadas
+        response = requests.get('https://ouvidoria-finalizadas.onrender.com/api/finalizadas', timeout=10)
+        
+        if response.status_code == 200:
+            finalizadas = response.json()
+            return jsonify(finalizadas)
+        else:
+            return jsonify({'error': f'Erro ao buscar finalizadas: {response.status_code}'}), 500
+            
+    except Exception as e:
+        return jsonify({'error': f'Erro ao conectar com servidor de finalizadas: {str(e)}'}), 500
+
+@app.route('/api/finalizadas/<protocolo>', methods=['GET'])
+def buscar_finalizada_por_protocolo(protocolo):
+    """Busca uma denúncia finalizada por protocolo"""
+    try:
+        import requests
+        
+        # Buscar no servidor Render de finalizadas
+        response = requests.get(f'https://ouvidoria-finalizadas.onrender.com/api/finalizadas/{protocolo}', timeout=10)
+        
+        if response.status_code == 200:
+            return jsonify(response.json())
+        elif response.status_code == 404:
+            return jsonify({'error': 'Denúncia finalizada não encontrada'}), 404
+        else:
+            return jsonify({'error': f'Erro ao buscar finalizada: {response.status_code}'}), 500
+            
+    except Exception as e:
+        return jsonify({'error': f'Erro ao conectar com servidor de finalizadas: {str(e)}'}), 500
 
 # ============================================================================
 # ENDPOINTS DE NOTÍCIAS
