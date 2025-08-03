@@ -690,6 +690,13 @@ async function carregarDenuncias() {
         }
         
         if (success) {
+            // Garantir que todasDenuncias é um array
+            if (!Array.isArray(todasDenuncias)) {
+                console.error('Dados de denúncias não são um array:', todasDenuncias);
+                renderizarDenuncias([]);
+                return;
+            }
+            
             // Filtrar apenas denúncias ativas (não finalizadas)
             const denunciasAtivas = todasDenuncias.filter(d => d.status !== 'Finalizada');
             lastDenunciasCount = denunciasAtivas.length;
@@ -1076,10 +1083,13 @@ async function carregarNoticias() {
             throw new Error(`HTTP ${response.status}`);
         }
         
-        const noticias = await response.json();
-        window.noticias = noticias || [];
+        const responseData = await response.json();
+        // Verificar se a resposta tem a propriedade 'noticias'
+        const noticias = responseData.noticias || responseData || [];
+        console.log('Dados de notícias recebidos:', noticias);
+        window.noticias = noticias;
         
-        renderizarNoticias(window.noticias);
+        renderizarNoticias(noticias);
         
     } catch (error) {
         console.log('Erro ao carregar notícias:', error.message);
@@ -1092,9 +1102,15 @@ function renderizarNoticias(noticias) {
     console.log('Renderizando notícias:', noticias);
     
     const container = document.getElementById('noticiasList');
+    if (!container) {
+        console.error('Container de notícias não encontrado!');
+        return;
+    }
+    
     container.innerHTML = '';
     
-    if (!noticias || noticias.length === 0) {
+    // Garantir que noticias é um array
+    if (!Array.isArray(noticias) || noticias.length === 0) {
         container.innerHTML = `
             <div class="no-result">
                 <div class="no-result-icon">📰</div>
