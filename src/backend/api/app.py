@@ -3,12 +3,14 @@ API da Ouvidoria da Polícia Militar
 Backend Flask para gerenciamento de denúncias e notícias
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, g
 from flask_cors import CORS
 import sqlite3
 import datetime
 import os
 import sys
+import requests
+import json
 
 # Configuração do Flask
 app = Flask(__name__)
@@ -24,6 +26,13 @@ def after_request(response):
     response.headers.add('Access-Control-Max-Age', '86400')
     return response
 
+# Configuração do Discord
+DISCORD_CONFIG = {
+    'guild_id': os.environ.get('DISCORD_GUILD_ID', '1234567890123456789'),
+    'bot_token': os.environ.get('DISCORD_BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE'),
+    'api_base': 'https://discord.com/api/v10'
+}
+
 def get_db():
     """Conecta ao banco de dados SQLite"""
     if os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RENDER"):
@@ -34,21 +43,30 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+@app.teardown_appcontext
+def close_connection(exception):
+    """Fecha a conexão com o banco de dados"""
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
 def init_db():
     """Inicializa o banco de dados com as tabelas necessárias"""
-    with get_db() as db:
+    with app.app_context():
+        db = get_db()
         # Tabela de denúncias
         db.execute('''
             CREATE TABLE IF NOT EXISTS denuncias (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                protocolo TEXT UNIQUE,
-                nome TEXT,
-                rg TEXT,
-                tipo TEXT,
-                descricao TEXT,
+                protocolo TEXT UNIQUE NOT NULL,
+                nome TEXT NOT NULL,
+                rg TEXT NOT NULL,
+                tipo TEXT NOT NULL,
+                descricao TEXT NOT NULL,
                 youtube TEXT,
-                status TEXT,
-                finalizada_em TEXT
+                status TEXT DEFAULT 'Em Análise',
+                dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                dataFinalizacao TIMESTAMP
             )
         ''')
         
@@ -123,17 +141,20 @@ def criar_denuncia():
         # Insere a denúncia
         print(f"Inserindo denúncia com protocolo: {protocolo}")
         db.execute('''
-            INSERT INTO denuncias (protocolo, nome, rg, tipo, descricao, youtube, status, finalizada_em) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO denuncias (protocolo, nome, rg, tipo, descricao, youtube, status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (protocolo, data.get('nome'), data.get('rg'), tipo, data.get('descricao'), 
-              data.get('youtube'), 'Em análise', None))
+              data.get('youtube'), 'Em Análise'))
         db.commit()
         print(f"Denúncia inserida com sucesso. Protocolo: {protocolo}")
         
         print(f"Retornando protocolo: {protocolo}")
-        return jsonify({'protocolo': protocolo}), 201
+        return jsonify({'protocolo': protocolo, "message": "Denúncia criada com sucesso"}), 201
         
+    except sqlite3.IntegrityError:
+        return jsonify({"error": "Protocolo já existe"}), 400
     except Exception as e:
+        print(f"Erro ao criar denúncia: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/denuncias', methods=['GET'])
@@ -148,7 +169,7 @@ def listar_denuncias():
         for d in denuncias:
             d = dict(d)
             status = d.get('status')
-            finalizada_em_str = d.get('finalizada_em')
+            finalizada_em_str = d.get('dataFinalizacao') # Changed from finalizada_em
             
             # Filtra denúncias finalizadas há mais de 4 segundos
             if status == 'Finalizada' and finalizada_em_str:
@@ -184,13 +205,12 @@ def atualizar_status(protocolo):
             # Atualizar no banco principal
             finalizada_em = datetime.datetime.utcnow().isoformat()
             db.execute('''
-                UPDATE denuncias SET status = ?, finalizada_em = ? WHERE protocolo = ?
+                UPDATE denuncias SET status = ?, dataFinalizacao = ? WHERE protocolo = ?
             ''', (status, finalizada_em, protocolo))
             db.commit()
             
             # Mover para o backend de finalizadas
             try:
-                import requests
                 dados_finalizada = {
                     'protocolo': denuncia['protocolo'],
                     'nome': denuncia['nome'],
@@ -198,7 +218,7 @@ def atualizar_status(protocolo):
                     'tipo': denuncia['tipo'],
                     'descricao': denuncia['descricao'],
                     'youtube': denuncia['youtube'],
-                    'data_criacao': denuncia.get('data_criacao', datetime.datetime.utcnow().isoformat()),
+                    'data_criacao': denuncia.get('dataCriacao', datetime.datetime.utcnow().isoformat()),
                     'data_finalizacao': finalizada_em,
                     'observacoes': 'Movida automaticamente do sistema principal'
                 }
@@ -217,7 +237,7 @@ def atualizar_status(protocolo):
                 # Continua mesmo se falhar, pois a denúncia já foi finalizada no banco principal
         else:
             db.execute('''
-                UPDATE denuncias SET status = ?, finalizada_em = NULL WHERE protocolo = ?
+                UPDATE denuncias SET status = ?, dataFinalizacao = NULL WHERE protocolo = ?
             ''', (status, protocolo))
             db.commit()
             
@@ -267,7 +287,7 @@ def buscar_finalizadas():
         finalizadas = db.execute('''
             SELECT * FROM denuncias 
             WHERE status = 'Finalizada' 
-            ORDER BY finalizada_em DESC
+            ORDER BY dataFinalizacao DESC
         ''').fetchall()
         
         resultado = []
@@ -316,7 +336,7 @@ def adicionar_finalizada():
             # Atualizar status para Finalizada
             db.execute('''
                 UPDATE denuncias 
-                SET status = 'Finalizada', finalizada_em = ? 
+                SET status = 'Finalizada', dataFinalizacao = ? 
                 WHERE protocolo = ?
             ''', (data.get('data_finalizacao', datetime.datetime.utcnow().isoformat()), data['protocolo']))
             db.commit()
@@ -329,7 +349,7 @@ def adicionar_finalizada():
             # Inserir nova denúncia finalizada
             db.execute('''
                 INSERT INTO denuncias 
-                (protocolo, nome, rg, tipo, descricao, youtube, status, finalizada_em)
+                (protocolo, nome, rg, tipo, descricao, youtube, status, dataFinalizacao)
                 VALUES (?, ?, ?, ?, ?, ?, 'Finalizada', ?)
             ''', (
                 data.get('protocolo'),
@@ -479,6 +499,104 @@ def check_table():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/discord/members', methods=['GET'])
+def get_discord_members():
+    """Endpoint para buscar membros do servidor Discord"""
+    try:
+        # Verificar se o bot token está configurado
+        if DISCORD_CONFIG['bot_token'] == 'YOUR_BOT_TOKEN_HERE':
+            # Retornar dados de exemplo se não estiver configurado
+            return jsonify([
+                {
+                    "username": "Comandante Silva",
+                    "avatar": None,
+                    "status": "online",
+                    "roles": ["Comandante Geral"]
+                },
+                {
+                    "username": "Tenente Santos", 
+                    "avatar": None,
+                    "status": "idle",
+                    "roles": ["Ouvidora"]
+                },
+                {
+                    "username": "Sargento Costa",
+                    "avatar": None, 
+                    "status": "online",
+                    "roles": ["Coordenador Técnico"]
+                }
+            ])
+        
+        # Fazer requisição para a API do Discord
+        headers = {
+            'Authorization': f'Bot {DISCORD_CONFIG["bot_token"]}',
+            'Content-Type': 'application/json'
+        }
+        
+        # Buscar membros do servidor
+        guild_url = f"{DISCORD_CONFIG['api_base']}/guilds/{DISCORD_CONFIG['guild_id']}/members?limit=1000"
+        response = requests.get(guild_url, headers=headers)
+        
+        if response.status_code != 200:
+            print(f"Erro ao buscar membros do Discord: {response.status_code}")
+            return jsonify([])
+        
+        members_data = response.json()
+        members = []
+        
+        for member in members_data:
+            # Buscar informações do usuário
+            user_id = member['user']['id']
+            user_url = f"{DISCORD_CONFIG['api_base']}/users/{user_id}"
+            user_response = requests.get(user_url, headers=headers)
+            
+            if user_response.status_code == 200:
+                user_data = user_response.json()
+                
+                # Determinar status (online/offline)
+                presence_url = f"{DISCORD_CONFIG['api_base']}/guilds/{DISCORD_CONFIG['guild_id']}/presences"
+                presence_response = requests.get(presence_url, headers=headers)
+                
+                status = "offline"
+                if presence_response.status_code == 200:
+                    presences = presence_response.json()
+                    for presence in presences:
+                        if presence['user']['id'] == user_id:
+                            status = presence['status']
+                            break
+                
+                # Construir avatar URL
+                avatar_url = None
+                if user_data.get('avatar'):
+                    avatar_url = f"https://cdn.discordapp.com/avatars/{user_id}/{user_data['avatar']}.png"
+                
+                # Buscar roles
+                roles = []
+                if member.get('roles'):
+                    roles_url = f"{DISCORD_CONFIG['api_base']}/guilds/{DISCORD_CONFIG['guild_id']}/roles"
+                    roles_response = requests.get(roles_url, headers=headers)
+                    
+                    if roles_response.status_code == 200:
+                        guild_roles = roles_response.json()
+                        for role_id in member['roles']:
+                            for role in guild_roles:
+                                if role['id'] == role_id:
+                                    roles.append(role['name'])
+                                    break
+                
+                members.append({
+                    "username": user_data['username'],
+                    "avatar": avatar_url,
+                    "status": status,
+                    "roles": roles
+                })
+        
+        return jsonify(members)
+        
+    except Exception as e:
+        print(f"Erro ao buscar membros do Discord: {e}")
+        return jsonify([])
 
 # ============================================================================
 # INICIALIZAÇÃO DO SERVIDOR
