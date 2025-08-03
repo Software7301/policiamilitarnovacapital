@@ -351,116 +351,35 @@ class InteractiveUI {
 // Inicializar UI interativa
 const interactiveUI = new InteractiveUI();
 
-// Funcionalidade do campo de pesquisa no footer - Versão super interativa
+// Efeitos de ripple para botões de navegação
 document.addEventListener('DOMContentLoaded', function() {
-    const footerSearch = document.getElementById('footerSearch');
-    const footerSearchBtn = document.getElementById('footerSearchBtn');
-    
-    if (footerSearch && footerSearchBtn) {
-        // Função para realizar a pesquisa
-        function performSearch() {
-            const searchTerm = footerSearch.value.trim();
-            if (searchTerm) {
-                // Adicionar efeito de loading
-                footerSearchBtn.classList.add('loading');
-                
-                // Verificar se é um protocolo (4 dígitos)
-                if (/^\d{4}$/.test(searchTerm)) {
-                    // Redirecionar para a página de acompanhamento com o protocolo
-                    setTimeout(() => {
-                        window.location.href = `denunciar.html?protocolo=${searchTerm}`;
-                    }, 500);
-                } else {
-                    // Pesquisa geral - pode redirecionar para notícias ou mostrar resultados
-                    setTimeout(() => {
-                        window.location.href = `noticias.html?search=${encodeURIComponent(searchTerm)}`;
-                    }, 500);
-                }
-            }
-        }
-        
-        // Função para adicionar efeito de ripple
-        function addRippleEffect(element, event) {
-            const ripple = document.createElement('span');
-            const rect = element.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = event.clientX - rect.left - size / 2;
-            const y = event.clientY - rect.top - size / 2;
-            
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
-            ripple.classList.add('ripple-effect');
-            
-            element.appendChild(ripple);
-            
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        }
-        
-        // Event listeners
-        footerSearchBtn.addEventListener('click', function(e) {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
             addRippleEffect(this, e);
-            performSearch();
-        });
-        
-        footerSearch.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-        
-        // Efeito de foco no input
-        footerSearch.addEventListener('focus', function() {
-            this.parentElement.classList.add('focused');
-            this.style.transform = 'scale(1.02)';
-        });
-        
-        footerSearch.addEventListener('blur', function() {
-            this.parentElement.classList.remove('focused');
-            this.style.transform = '';
-        });
-        
-        // Animação de placeholder
-        footerSearch.addEventListener('input', function() {
-            if (this.value.length > 0) {
-                this.classList.add('has-content');
-            } else {
-                this.classList.remove('has-content');
-            }
-        });
-        
-        // Efeitos de hover para o botão de pesquisa
-        footerSearchBtn.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.1) translateY(-2px)';
-        });
-        
-        footerSearchBtn.addEventListener('mouseleave', function() {
-            this.style.transform = '';
-        });
-        
-        // Efeitos de ripple para botões de navegação
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                addRippleEffect(this, e);
             });
-        });
-        
-        // Animação de entrada para o footer
-        const bottomNav = document.querySelector('.bottom-nav');
-        if (bottomNav) {
-            bottomNav.style.opacity = '0';
-            bottomNav.style.transform = 'translateY(100%)';
-            
-            setTimeout(() => {
-                bottomNav.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-                bottomNav.style.opacity = '1';
-                bottomNav.style.transform = 'translateY(0)';
-            }, 300);
-        }
-    }
 });
+
+
+
+// Função para adicionar efeito de ripple
+function addRippleEffect(element, event) {
+        const ripple = document.createElement('span');
+        const rect = element.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = event.clientX - rect.left - size / 2;
+        const y = event.clientY - rect.top - size / 2;
+        
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        ripple.classList.add('ripple-effect');
+        
+        element.appendChild(ripple);
+        
+        setTimeout(() => {
+            ripple.remove();
+        }, 600);
+    }
 
 if (isDenunciaPage) {
     // Elementos específicos da página de denúncia
@@ -791,6 +710,106 @@ style.textContent = `
 `;
 
 document.head.appendChild(style);
+
+// Funcionalidade do Modal da Equipe
+document.addEventListener('DOMContentLoaded', function() {
+    const equipeBtn = document.getElementById('equipeBtn');
+    const equipeModal = document.getElementById('equipeModal');
+    const closeEquipeModal = document.getElementById('closeEquipeModal');
+
+    // Abrir modal da equipe
+    if (equipeBtn) {
+        equipeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Botão Equipe clicado!');
+            
+            if (equipeModal) {
+                console.log('Modal encontrado, abrindo...');
+                equipeModal.style.display = 'block';
+                equipeModal.style.zIndex = '9999';
+                document.body.style.overflow = 'hidden';
+                
+                // Adicionar efeito de fade in
+                equipeModal.style.opacity = '0';
+                setTimeout(() => {
+                    equipeModal.style.opacity = '1';
+                }, 10);
+                
+                // Animar entrada dos membros da equipe
+                const membros = document.querySelectorAll('.membro-equipe');
+                membros.forEach((membro, index) => {
+                    setTimeout(() => {
+                        membro.style.opacity = '1';
+                        membro.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            } else {
+                console.error('Modal não encontrado!');
+                alert('Modal não encontrado!');
+            }
+        });
+    }
+
+    // Fechar modal da equipe
+    if (closeEquipeModal) {
+        closeEquipeModal.addEventListener('click', function() {
+            fecharModalEquipe();
+        });
+    }
+
+    // Fechar modal clicando fora dele
+    if (equipeModal) {
+        equipeModal.addEventListener('click', function(event) {
+            if (event.target === equipeModal) {
+                fecharModalEquipe();
+            }
+        });
+    }
+
+    // Fechar modal com ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && equipeModal && equipeModal.style.display === 'block') {
+            fecharModalEquipe();
+        }
+    });
+
+    function fecharModalEquipe() {
+        if (equipeModal) {
+            equipeModal.style.opacity = '0';
+            setTimeout(() => {
+                equipeModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }, 300);
+            
+            // Resetar animações dos membros
+            const membros = document.querySelectorAll('.membro-equipe');
+            membros.forEach(membro => {
+                membro.style.opacity = '0';
+                membro.style.transform = 'translateY(30px)';
+            });
+        }
+    }
+
+    // Adicionar efeitos de hover nos membros da equipe
+    const membrosEquipe = document.querySelectorAll('.membro-equipe');
+    membrosEquipe.forEach(membro => {
+        membro.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
+        });
+        
+        membro.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+        
+        // Efeito de clique
+        membro.addEventListener('click', function() {
+            this.style.transform = 'translateY(-2px) scale(0.98)';
+            setTimeout(() => {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            }, 150);
+        });
+    });
+});
 
 
 

@@ -180,27 +180,20 @@
                         <h2>Moderação de Denúncias</h2>
                         <p class="header-description">Apenas denúncias ativas são exibidas aqui. Use a pesquisa para consultar denúncias finalizadas.</p>
                     </div>
-                    <div class="header-actions">
+                                        <div class="header-actions">
                         <div class="search-container">
                             <div class="input-group">
                                 <input type="text" id="protocoloSearch" placeholder="Pesquisar por protocolo..." maxlength="4">
                                 <span class="input-icon">🔍</span>
                             </div>
-                            <button class="search-btn" id="searchProtocolo">
-                                <span class="btn-icon">🔍</span>
-                                <span>Pesquisar</span>
-                            </button>
                         </div>
-                        <div class="auto-refresh-indicator">
-                            <span class="refresh-status">🔄 Atualização automática ativa</span>
-                        </div>
-                                                                         <button class="refresh-btn" id="refreshDenuncias">
+                        <button class="search-btn" id="searchProtocolo">
+                            <span class="btn-icon">🔍</span>
+                            <span>Pesquisar</span>
+                        </button>
+                        <button class="refresh-btn" id="refreshDenuncias">
                             <span class="btn-icon">🔄</span>
                             <span>Atualizar</span>
-                        </button>
-                        <button class="check-new-btn" id="checkNewDenuncias" onclick="verificarNovasDenunciasLocal()">
-                            <span class="btn-icon">🔍</span>
-                            <span>Verificar Novas</span>
                         </button>
                     </div>
                 </div>
@@ -225,6 +218,10 @@
                         <p class="header-description">Publique e gerencie notícias oficiais da corporação.</p>
                     </div>
                     <div class="header-actions">
+                        <button class="add-noticia-btn" id="addNoticia">
+                            <span class="btn-icon">📝</span>
+                            <span>Nova Notícia</span>
+                        </button>
                         <button class="delete-btn" id="deleteNoticias" style="display: none;">
                             <span class="btn-icon">🗑️</span>
                             <span>Apagar Selecionadas</span>
@@ -233,58 +230,52 @@
                 </div>
                 
                 <div class="noticias-container">
-                    <div class="noticias-actions">
-                        <button class="add-btn" id="addNoticia">
-                            <span class="btn-icon">📝</span>
-                            <span>Adicionar Notícia</span>
-                        </button>
-                    </div>
-                    <div class="noticias-form" id="noticiaForm" style="display:none;">
-                        <div class="form-header">
-                            <h3>📝 Publicar Nova Notícia</h3>
+                    <div id="noticiasList" class="noticias-list"></div>
+                </div>
+                
+                <!-- Formulário de Nova Notícia -->
+                <div class="noticia-form-overlay" id="noticiaFormOverlay" style="display: none;">
+                    <div class="noticia-form-container">
+                        <div class="noticia-form-header">
+                            <h3>📝 Nova Notícia</h3>
                             <button class="close-btn" id="closeNoticiaForm">×</button>
                         </div>
                         <form id="noticiaFormElement">
                             <div class="form-group">
-                                <label for="noticiaTitulo">Título</label>
+                                <label for="noticiaTitulo">Título da Notícia</label>
                                 <div class="input-group">
-                                    <input type="text" id="noticiaTitulo" required>
-                                    <span class="input-icon">📝</span>
+                                    <input type="text" id="noticiaTitulo" placeholder="Digite o título da notícia" required>
+                                    <span class="input-icon">📰</span>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="noticiaConteudo">Conteúdo</label>
                                 <div class="input-group">
-                                    <textarea id="noticiaConteudo" rows="6" required></textarea>
-                                    <span class="input-icon">📄</span>
+                                    <textarea id="noticiaConteudo" placeholder="Digite o conteúdo da notícia" rows="6" required></textarea>
+                                    <span class="input-icon">📝</span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="noticiaFotos">Fotos (máximo 3)</label>
-                                <div class="file-upload-container">
-                                    <input type="file" id="noticiaFotos" multiple accept="image/*" class="file-input">
-                                    <div class="file-upload-area" id="fileUploadArea">
-                                        <div class="upload-icon">📷</div>
-                                        <p>Clique para selecionar fotos ou arraste aqui</p>
-                                        <small>Máximo 3 fotos • JPG, PNG, GIF</small>
+                                <label for="noticiaFotos">Fotos (opcional)</label>
+                                <div class="file-upload-area" id="fileUploadArea">
+                                    <input type="file" id="noticiaFotos" multiple accept="image/*" style="display: none;">
+                                    <div class="upload-content">
+                                        <span class="upload-icon">📷</span>
+                                        <p>Arraste fotos aqui ou clique para selecionar</p>
+                                        <small>Máximo 3 fotos (JPG, PNG, GIF)</small>
                                     </div>
                                 </div>
-                                <div class="image-preview-container" id="imagePreviewContainer"></div>
+                                <div id="imagePreviewContainer" class="image-preview-container"></div>
                             </div>
                             <div class="form-actions">
-                                <button type="submit" class="publish-btn">
-                                    <span class="btn-icon">📤</span>
-                                    <span>Publicar</span>
+                                <button type="submit" class="submit-btn" id="submitNoticia">
+                                    <span class="btn-text">📤 Publicar Notícia</span>
+                                    <div class="loading-spinner" id="submitNoticiaSpinner" style="display: none;"></div>
                                 </button>
-                                <button type="button" class="cancel-btn" id="cancelNoticia">
-                                    <span class="btn-icon">❌</span>
-                                    <span>Cancelar</span>
-                                </button>
+                                <button type="button" class="cancel-btn" id="cancelNoticia">❌ Cancelar</button>
                             </div>
                         </form>
                     </div>
-                    
-                    <div id="noticiasList" class="noticias-list"></div>
                 </div>
             </div>
 

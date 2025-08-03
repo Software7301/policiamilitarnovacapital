@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Ouvidoria da Polícia Militar da Nova Capital - Denúncias, elogios e sugestões">
-    <title>Ouvidoria da Polícia Militar</title>
+    <title>Polícia Militar da Nova Capital</title>
     
     <!-- Scripts externos -->
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2.6.4/dist/email.min.js"></script>
@@ -40,9 +40,14 @@
                     </h3>
                 </div>
                 <div class="card-content">
-                    <h4 class="welcome-title"></h4>
-                    <p class="welcome-subtitle"></p>
-                    <div class="welcome-content"></div>
+                    <h4 class="welcome-title">Bem Vindo ao Site da Nova Capital</h4>
+                    <p class="welcome-subtitle">Sistema de Ouvidoria Interativo</p>
+                    <div class="welcome-content">
+                        <p><strong>Denúncias:</strong> Registre ocorrências de forma segura</p>
+                        <p><strong>Acompanhamento:</strong> Acompanhe o status em tempo real</p>
+                        <p><strong>Transparência:</strong> Sistema totalmente transparente</p>
+                        <p><strong>Segurança:</strong> Dados protegidos e sigilosos</p>
+                    </div>
                 </div>
             </section>
         </div>
@@ -63,28 +68,89 @@
                 <span class="nav-icon">📰</span>
                 <span class="nav-text">Notícias</span>
             </a>
-
+            <a href="#" class="nav-item" id="equipeBtn">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">Equipe</span>
+            </a>
             <a href="../components/admin/admin.html" class="nav-item" target="_blank">
                 <span class="nav-icon">⚙️</span>
                 <span class="nav-text">Admin</span>
             </a>
         </div>
-        
-        <!-- Campo de pesquisa com placeholder -->
-        <div class="footer-search">
-            <div class="search-container">
-                <input type="text" 
-                       class="footer-search-input" 
-                       placeholder="🔍 Pesquisar protocolo ou denúncia..." 
-                       id="footerSearch">
-                <button class="footer-search-btn" id="footerSearchBtn">
-                    <span class="search-icon">🔍</span>
-                </button>
+    </footer>
+
+    <!-- Modal da Equipe -->
+    <div id="equipeModal" class="modal">
+        <div class="modal-content equipe-modal">
+            <div class="modal-header">
+                <h2>Nossa Equipe</h2>
+                <span class="close" id="closeEquipeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="equipe-container">
+                    <div class="equipe-grid">
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👨‍💼</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Comandante Silva</h3>
+                                <p>Comandante Geral</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👩‍💼</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Tenente Santos</h3>
+                                <p>Ouvidora</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👨‍🔧</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Sargento Costa</h3>
+                                <p>Coordenador Técnico</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👩‍💻</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Cabo Oliveira</h3>
+                                <p>Suporte Técnico</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👨‍🚔</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Soldado Pereira</h3>
+                                <p>Patrulheiro</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👩‍⚖️</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Delegada Lima</h3>
+                                <p>Assessora Jurídica</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </footer>
+    </div>
 
     <!-- Scripts -->
     <script src="../scripts/script.js"></script>
+    <script src="../scripts/equipe-simple.js"></script>
 </body>
 </html>

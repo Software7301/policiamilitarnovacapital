@@ -67,9 +67,101 @@
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2025 Ouvidoria da Polícia Militar da Nova Capital. Todos os direitos reservados.</p>
+    <!-- Navegação inferior -->
+    <footer class="bottom-nav">
+        <div class="bottom-nav-content">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Início</span>
+            </a>
+            <a href="denunciar.html" class="nav-item">
+                <span class="nav-icon">📝</span>
+                <span class="nav-text">Denunciar</span>
+            </a>
+            <a href="noticias.html" class="nav-item active">
+                <span class="nav-icon">📰</span>
+                <span class="nav-text">Notícias</span>
+            </a>
+            <button class="nav-item" id="equipeBtn">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">Equipe</span>
+            </button>
+            <a href="../components/admin/admin.html" class="nav-item" target="_blank">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Admin</span>
+            </a>
+        </div>
     </footer>
+
+    <!-- Modal da Equipe -->
+    <div id="equipeModal" class="modal">
+        <div class="modal-content equipe-modal">
+            <div class="modal-header">
+                <h2>Nossa Equipe</h2>
+                <span class="close" id="closeEquipeModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="equipe-container">
+                    <div class="equipe-grid">
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👨‍💼</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Comandante Silva</h3>
+                                <p>Comandante Geral</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👩‍💼</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Tenente Santos</h3>
+                                <p>Ouvidora</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👨‍🔧</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Sargento Costa</h3>
+                                <p>Coordenador Técnico</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👩‍💻</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Cabo Oliveira</h3>
+                                <p>Suporte Técnico</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👨‍🚔</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Soldado Pereira</h3>
+                                <p>Patrulheiro</p>
+                            </div>
+                        </div>
+                        <div class="membro-equipe">
+                            <div class="avatar">
+                                <span class="avatar-icon">👩‍⚖️</span>
+                            </div>
+                            <div class="membro-info">
+                                <h3>Delegada Lima</h3>
+                                <p>Assessora Jurídica</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <script>
         let noticiasData = []; // Armazenar dados das notícias
@@ -326,6 +418,92 @@
                 if (event.key === 'Escape') {
                     fecharModal();
                 }
+            });
+
+            // Funcionalidade do Modal da Equipe
+            const equipeBtn = document.getElementById('equipeBtn');
+            const equipeModal = document.getElementById('equipeModal');
+            const closeEquipeModal = document.getElementById('closeEquipeModal');
+
+            // Abrir modal da equipe
+            if (equipeBtn) {
+                equipeBtn.addEventListener('click', function() {
+                    equipeModal.style.display = 'block';
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Adicionar efeito de fade in
+                    equipeModal.style.opacity = '0';
+                    setTimeout(() => {
+                        equipeModal.style.opacity = '1';
+                    }, 10);
+                    
+                    // Animar entrada dos membros da equipe
+                    const membros = document.querySelectorAll('.membro-equipe');
+                    membros.forEach((membro, index) => {
+                        setTimeout(() => {
+                            membro.style.opacity = '1';
+                            membro.style.transform = 'translateY(0)';
+                        }, index * 100);
+                    });
+                });
+            }
+
+            // Fechar modal da equipe
+            if (closeEquipeModal) {
+                closeEquipeModal.addEventListener('click', function() {
+                    fecharModalEquipe();
+                });
+            }
+
+            // Fechar modal clicando fora dele
+            if (equipeModal) {
+                equipeModal.addEventListener('click', function(event) {
+                    if (event.target === equipeModal) {
+                        fecharModalEquipe();
+                    }
+                });
+            }
+
+            // Fechar modal com ESC
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && equipeModal.style.display === 'block') {
+                    fecharModalEquipe();
+                }
+            });
+
+            function fecharModalEquipe() {
+                equipeModal.style.opacity = '0';
+                setTimeout(() => {
+                    equipeModal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }, 300);
+                
+                // Resetar animações dos membros
+                const membros = document.querySelectorAll('.membro-equipe');
+                membros.forEach(membro => {
+                    membro.style.opacity = '0';
+                    membro.style.transform = 'translateY(30px)';
+                });
+            }
+
+            // Adicionar efeitos de hover nos membros da equipe
+            const membrosEquipe = document.querySelectorAll('.membro-equipe');
+            membrosEquipe.forEach(membro => {
+                membro.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px) scale(1.02)';
+                });
+                
+                membro.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+                
+                // Efeito de clique
+                membro.addEventListener('click', function() {
+                    this.style.transform = 'translateY(-2px) scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-5px) scale(1.02)';
+                    }, 150);
+                });
             });
         });
     </script>

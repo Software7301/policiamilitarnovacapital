@@ -55,21 +55,46 @@ function checkAuthStatus() {
 }
 
 function setupEventListeners() {
-    document.getElementById('manualLogin').addEventListener('click', handleManualLogin);
-    document.getElementById('setupSubmitBtn').addEventListener('click', handleSetupAccount);
-    document.getElementById('setupLogout').addEventListener('click', handleLogout);
-    document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+    const manualLoginBtn = document.getElementById('manualLogin');
+    if (manualLoginBtn) {
+        manualLoginBtn.addEventListener('click', handleManualLogin);
+    }
+    
+    const setupSubmitBtn = document.getElementById('setupSubmitBtn');
+    if (setupSubmitBtn) {
+        setupSubmitBtn.addEventListener('click', handleSetupAccount);
+    }
+    
+    const setupLogoutBtn = document.getElementById('setupLogout');
+    if (setupLogoutBtn) {
+        setupLogoutBtn.addEventListener('click', handleLogout);
+    }
+    
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
     
     // Event listeners para verificação de senha Google
-    document.getElementById('verifyPasswordBtn').addEventListener('click', verifyGooglePassword);
-    document.getElementById('cancelGoogleBtn').addEventListener('click', cancelGoogleLogin);
+    const verifyPasswordBtn = document.getElementById('verifyPasswordBtn');
+    if (verifyPasswordBtn) {
+        verifyPasswordBtn.addEventListener('click', verifyGooglePassword);
+    }
+    
+    const cancelGoogleBtn = document.getElementById('cancelGoogleBtn');
+    if (cancelGoogleBtn) {
+        cancelGoogleBtn.addEventListener('click', cancelGoogleLogin);
+    }
     
     // Event listener para Enter na senha Google
-    document.getElementById('googlePassword').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            verifyGooglePassword();
-        }
-    });
+    const googlePasswordInput = document.getElementById('googlePassword');
+    if (googlePasswordInput) {
+        googlePasswordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyGooglePassword();
+            }
+        });
+    }
     
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', function() {
@@ -77,25 +102,61 @@ function setupEventListeners() {
         });
     });
     
-    document.getElementById('refreshDenuncias').addEventListener('click', carregarDenuncias);
-    document.getElementById('searchProtocolo').addEventListener('click', pesquisarProtocolo);
-    document.getElementById('closeSearch').addEventListener('click', fecharPesquisa);
+    const refreshDenunciasBtn = document.getElementById('refreshDenuncias');
+    if (refreshDenunciasBtn) {
+        refreshDenunciasBtn.addEventListener('click', carregarDenuncias);
+    }
     
-    document.getElementById('addNoticia').addEventListener('click', toggleNoticiaForm);
-    console.log('Botão addNoticia encontrado:', document.getElementById('addNoticia'));
-    document.getElementById('cancelNoticia').addEventListener('click', toggleNoticiaForm);
-    document.getElementById('closeNoticiaForm').addEventListener('click', toggleNoticiaForm);
-    document.getElementById('noticiaFormElement').addEventListener('submit', handleNoticiaSubmit);
-    document.getElementById('deleteNoticias').addEventListener('click', handleDeleteNoticias);
+    const searchProtocoloBtn = document.getElementById('searchProtocolo');
+    if (searchProtocoloBtn) {
+        searchProtocoloBtn.addEventListener('click', pesquisarProtocolo);
+    }
     
-    document.getElementById('saveSettingsBtn').addEventListener('click', handleSaveSettings);
+    const closeSearchBtn = document.getElementById('closeSearch');
+    if (closeSearchBtn) {
+        closeSearchBtn.addEventListener('click', fecharPesquisa);
+    }
+    
+
+    const addNoticiaBtn = document.getElementById('addNoticia');
+    if (addNoticiaBtn) {
+        addNoticiaBtn.addEventListener('click', toggleNoticiaForm);
+    }
+    
+    const closeNoticiaFormBtn = document.getElementById('closeNoticiaForm');
+    if (closeNoticiaFormBtn) {
+        closeNoticiaFormBtn.addEventListener('click', toggleNoticiaForm);
+    }
+    
+    const cancelNoticiaBtn = document.getElementById('cancelNoticia');
+    if (cancelNoticiaBtn) {
+        cancelNoticiaBtn.addEventListener('click', toggleNoticiaForm);
+    }
+    
+    const noticiaFormElement = document.getElementById('noticiaFormElement');
+    if (noticiaFormElement) {
+        noticiaFormElement.addEventListener('submit', handleNoticiaSubmit);
+    }
+    
+    const deleteNoticiasBtn = document.getElementById('deleteNoticias');
+    if (deleteNoticiasBtn) {
+        deleteNoticiasBtn.addEventListener('click', handleDeleteNoticias);
+    }
+    
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    if (saveSettingsBtn) {
+        saveSettingsBtn.addEventListener('click', handleSaveSettings);
+    }
     
 
     
-    document.getElementById('setupAccountForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        handleSetupAccount();
-    });
+    const setupAccountForm = document.getElementById('setupAccountForm');
+    if (setupAccountForm) {
+        setupAccountForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleSetupAccount();
+        });
+    }
     
     const telefoneInput = document.getElementById('setupTelefone');
     if (telefoneInput) {
@@ -930,7 +991,7 @@ function mostrarNotificacaoDenunciaFinalizada(protocolo) {
 }
 
 function toggleNoticiaForm() {
-    const form = document.getElementById('noticiaForm');
+    const form = document.getElementById('noticiaFormOverlay');
     const isVisible = form.style.display !== 'none';
     
     form.style.display = isVisible ? 'none' : 'block';
@@ -940,6 +1001,7 @@ function toggleNoticiaForm() {
         document.getElementById('noticiaConteudo').value = '';
         document.getElementById('noticiaFotos').value = '';
         document.getElementById('imagePreviewContainer').innerHTML = '';
+        window.noticiaFotos = [];
     }
 }
 
@@ -1077,6 +1139,10 @@ async function handleNoticiaSubmit(event) {
         const sucessoMsg = tinhaFotos ? 
             '✅ Notícia publicada com sucesso!\n\n📸 As fotos foram incluídas automaticamente.' : 
             '✅ Notícia publicada com sucesso!';
+        
+        // Recarregar notícias para mostrar a nova
+        await carregarNoticias();
+        
         alert(sucessoMsg);
         
     } catch (error) {
@@ -2010,7 +2076,7 @@ function addRippleEffect(element) {
 
 // Adicionar efeitos de interatividade para todos os botões
 function setupButtonInteractions() {
-    const buttons = document.querySelectorAll('.search-btn, .refresh-btn, .check-new-btn, .delete-btn, .add-noticia-btn, .save-btn, .logout-btn, .setup-btn');
+    const buttons = document.querySelectorAll('.search-btn, .refresh-btn, .delete-btn, .save-btn, .logout-btn, .setup-btn');
     
     buttons.forEach(button => {
         // Efeito de ripple no clique

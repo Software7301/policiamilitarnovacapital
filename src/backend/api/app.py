@@ -105,20 +105,29 @@ def criar_denuncia():
         
         tipo = tipo_mapping.get(tipo_input.lower(), tipo_input)
         
-        # Gera protocolo único
-        db = get_db()
-        cur = db.execute('SELECT COUNT(*) FROM denuncias')
-        count = cur.fetchone()[0] + 1
-        protocolo = str(count).zfill(4)
+        # Usa o protocolo enviado pelo frontend ou gera um novo
+        protocolo = data.get('protocolo')
+        print(f"Protocolo recebido do frontend: {protocolo}")
+        if not protocolo:
+            db = get_db()
+            cur = db.execute('SELECT COUNT(*) FROM denuncias')
+            count = cur.fetchone()[0] + 1
+            protocolo = str(count).zfill(4)
+            print(f"Gerando novo protocolo: {protocolo}")
+        else:
+            print(f"Usando protocolo do frontend: {protocolo}")
         
         # Insere a denúncia
+        print(f"Inserindo denúncia com protocolo: {protocolo}")
         db.execute('''
             INSERT INTO denuncias (protocolo, nome, rg, tipo, descricao, youtube, status, finalizada_em) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', (protocolo, data.get('nome'), data.get('rg'), tipo, data.get('descricao'), 
               data.get('youtube'), 'Em análise', None))
         db.commit()
+        print(f"Denúncia inserida com sucesso. Protocolo: {protocolo}")
         
+        print(f"Retornando protocolo: {protocolo}")
         return jsonify({'protocolo': protocolo}), 201
         
     except Exception as e:
