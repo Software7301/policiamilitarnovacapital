@@ -356,7 +356,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', function(e) {
             addRippleEffect(this, e);
-            });
+        });
+    });
 });
 
 
@@ -521,26 +522,6 @@ if (isDenunciaPage) {
     
     if (motto && !motto.textContent) {
         motto.textContent = 'Servindo e Protegendo com Excelência';
-    }
-    
-    // Função typeWriter melhorada com animações
-    function typeWriter(element, text, speed = 50) {
-        if (!element) return;
-        
-        element.textContent = '';
-        element.style.animation = 'fadeIn 0.5s ease-out';
-        
-        let i = 0;
-        function type() {
-            if (i < text.length) {
-                element.textContent += text.charAt(i);
-                i++;
-                setTimeout(type, speed);
-            } else {
-                element.style.animation = 'pulse 1s ease-in-out';
-            }
-        }
-        type();
     }
     
     // Função typeWriter com callback
