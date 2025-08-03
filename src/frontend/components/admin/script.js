@@ -725,7 +725,18 @@ async function carregarDenuncias() {
         
         if (response.ok) {
             console.log('✅ Conectado ao servidor - carregando denúncias reais');
-            const todasDenuncias = await response.json();
+            const responseData = await response.json();
+            // Verificar se a resposta tem a propriedade 'denuncias'
+            const todasDenuncias = responseData.denuncias || responseData;
+            console.log('Dados recebidos:', todasDenuncias);
+            
+            // Garantir que é um array
+            if (!Array.isArray(todasDenuncias)) {
+                console.error('Dados de denúncias não são um array:', todasDenuncias);
+                renderizarDenuncias([]);
+                return;
+            }
+            
             window.denuncias = todasDenuncias;
             
             // Filtrar apenas denúncias ativas (não finalizadas)
