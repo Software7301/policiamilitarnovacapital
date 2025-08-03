@@ -1,115 +1,256 @@
-# Deploy no Render - Backend da Ouvidoria PM
+# Deploy da API da Ouvidoria no Render.com
 
-## Passos para Deploy
+Este guia explica como fazer o deploy da API da Ouvidoria da Polícia Militar no Render.com.
 
-### 1. Preparação do Repositório
-- ✅ `requirements.txt` - Dependências Python
-- ✅ `render.yaml` - Configuração do Render
-- ✅ `backend/app.py` - Aplicação Flask configurada
-- ✅ `.gitignore` - Arquivos ignorados
+## 📋 Pré-requisitos
 
-### 2. Deploy no Render
+- Conta no Render.com
+- Repositório Git com o código da API
+- Python 3.9+ instalado localmente (para testes)
 
-1. **Acesse o Render**: https://render.com
-2. **Faça login** e clique em "New +"
-3. **Selecione "Web Service"**
-4. **Conecte seu repositório GitHub**
-5. **Configure o serviço**:
-   - **Name**: `ouvidoria-pm-backend`
-   - **Environment**: `Python 3`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `gunicorn backend.app:app --bind 0.0.0.0:$PORT`
+## 🚀 Configuração do Deploy
 
-### 3. Configurações Importantes
+### 1. Estrutura do Projeto
 
-#### Variáveis de Ambiente (se necessário):
-- `PYTHON_VERSION`: `3.9.16`
-- `PORT`: Automático (Render define)
+Certifique-se de que seu projeto tenha a seguinte estrutura:
 
-#### Banco de Dados:
-- O SQLite será criado automaticamente em `/tmp/ouvidoria.db`
-- Os dados são persistentes durante o ciclo de vida do serviço
-
-### 4. URLs Configuradas
-
-Após o deploy, o backend estará disponível em:
-- **URL Principal**: `https://policiamilitarnovacapital.onrender.com`
-- **API Endpoints**:
-  - `GET /` - Status da API
-  - `POST /api/denuncias` - Criar denúncia
-  - `GET /api/denuncias` - Listar denúncias
-  - `PATCH /api/denuncias/<protocolo>` - Atualizar status
-
-### 5. Teste do Deploy
-
-Após o deploy, teste os endpoints:
-
-```bash
-# Teste de status
-curl https://policiamilitarnovacapital.onrender.com/
-
-# Teste de criação de denúncia
-curl -X POST https://policiamilitarnovacapital.onrender.com/api/denuncias \
-  -H "Content-Type: application/json" \
-  -d '{"nome":"Teste","rg":"123456","tipo":"1","descricao":"Teste","youtube":""}'
+```
+projetoouvidoria/
+├── render.yaml
+├── requirements.txt
+├── src/
+│   └── backend/
+│       ├── api/
+│       │   └── app.py
+│       └── requirements.txt
 ```
 
-### 6. Configuração do Frontend
+### 2. Configuração do Render
 
-Os arquivos JavaScript já estão configurados para usar:
-- `https://policiamilitarnovacapital.onrender.com` (produção)
-- `http://localhost:5000` (desenvolvimento local)
+O arquivo `render.yaml` já está configurado com:
 
-### 7. Monitoramento
+- **Nome do serviço**: `ouvidoria-pm-backend`
+- **Runtime**: Python 3.9.16
+- **Build Command**: `pip install -r requirements.txt`
+- **Start Command**: `gunicorn src.backend.api.app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120`
+- **Health Check**: `/health`
+- **Auto Deploy**: Habilitado
 
-- **Logs**: Disponível no painel do Render
-- **Status**: Verificar no dashboard do Render
-- **Métricas**: Uptime e performance no painel
+### 3. Variáveis de Ambiente
 
-### 8. Troubleshooting
+As seguintes variáveis são configuradas automaticamente:
 
-**Problema**: Serviço não inicia
-- Verificar logs no Render
-- Confirmar se `requirements.txt` está correto
-- Verificar se `gunicorn` está instalado
+- `RENDER=true` - Identifica que está rodando no Render
+- `FLASK_ENV=production` - Modo de produção
+- `FLASK_DEBUG=false` - Debug desabilitado
+- `PYTHON_VERSION=3.9.16` - Versão do Python
 
-**Problema**: CORS errors
-- Verificar se `Flask-CORS` está instalado
-- Confirmar configuração CORS no `app.py`
+### 4. Configurações Opcionais
 
-**Problema**: Banco de dados não persiste
-- O SQLite no Render é temporário
-- Considerar migrar para PostgreSQL se necessário
+Para funcionalidades avançadas, você pode adicionar estas variáveis no painel do Render:
 
-**Problema**: Frontend não conecta ao Render
-- Verificar se a URL está correta
-- Testar com `test-render.html`
-- Verificar logs do navegador (F12)
-- Confirmar se o serviço está "Live" no Render
+#### Discord Integration (Opcional)
+```
+DISCORD_GUILD_ID=seu_guild_id
+DISCORD_BOT_TOKEN=seu_bot_token
+```
 
-**Problema**: Painel admin não carrega denúncias
-- Abrir console do navegador (F12)
-- Verificar logs de erro
-- Testar URLs individualmente
-- Verificar se o backend está respondendo
+## 🔧 Funcionalidades Implementadas
 
-### 9. Teste de Conectividade
+### Endpoints Principais
 
-Use o arquivo `test-render.html` para verificar:
-1. Se o Render está online
-2. Se as URLs estão corretas
-3. Se há problemas de CORS
-4. Se a API está respondendo
+#### Denúncias
+- `POST /api/denuncias` - Criar nova denúncia
+- `GET /api/denuncias` - Listar todas as denúncias
+- `GET /api/denuncias/<protocolo>` - Buscar denúncia por protocolo
+- `PATCH /api/denuncias/<protocolo>` - Atualizar status
+- `DELETE /api/denuncias/<protocolo>` - Deletar denúncia
 
-### 10. Atualizações
+#### Notícias
+- `GET /api/noticias` - Listar todas as notícias
+- `POST /api/noticias` - Criar nova notícia
+- `DELETE /api/noticias/<id>` - Deletar notícia
 
-Para atualizar o deploy:
-1. Faça commit das mudanças no GitHub
-2. O Render fará deploy automático
-3. Verifique os logs para confirmar sucesso
+#### Finalizadas
+- `GET /api/finalizadas` - Listar denúncias finalizadas
+- `GET /api/finalizadas/<protocolo>` - Buscar finalizada por protocolo
+- `POST /api/finalizadas` - Adicionar denúncia finalizada
 
-### 11. Segurança
+#### Sistema
+- `GET /` - Página inicial
+- `GET /health` - Health check
+- `GET /test` - Teste de conectividade
 
-- ✅ CORS configurado para aceitar requisições
-- ✅ Headers de segurança configurados
-- ⚠️ Considerar adicionar autenticação se necessário 
+### Banco de Dados
+
+- **Tipo**: SQLite
+- **Localização**: `/tmp/ouvidoria.db` (no Render)
+- **Índices**: Otimizados para performance
+- **Backup**: Automático via logs
+
+### Logs e Monitoramento
+
+- **Logs**: Rotativos em `logs/ouvidoria.log`
+- **Health Check**: Endpoint `/health`
+- **Timestamps**: Em todas as respostas
+- **Error Handling**: Tratamento robusto de erros
+
+## 🚀 Deploy Automático
+
+### Via Git (Recomendado)
+
+1. **Conecte seu repositório**:
+   - Vá para o painel do Render
+   - Clique em "New Web Service"
+   - Conecte seu repositório Git
+
+2. **Configure o serviço**:
+   - **Name**: `ouvidoria-pm-backend`
+   - **Environment**: `Python`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `gunicorn src.backend.api.app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120`
+
+3. **Configure as variáveis de ambiente**:
+   - `RENDER=true`
+   - `FLASK_ENV=production`
+   - `FLASK_DEBUG=false`
+
+4. **Deploy**:
+   - Clique em "Create Web Service"
+   - O deploy será automático
+
+### Via render.yaml
+
+Se você já tem o arquivo `render.yaml` configurado:
+
+1. **Instale o CLI do Render** (opcional):
+   ```bash
+   npm install -g @render/cli
+   ```
+
+2. **Deploy via CLI**:
+   ```bash
+   render deploy
+   ```
+
+## 🔍 Monitoramento
+
+### Health Check
+
+O endpoint `/health` verifica:
+- Status do servidor
+- Conexão com banco de dados
+- Timestamp da verificação
+
+### Logs
+
+Acesse os logs no painel do Render:
+- **Build Logs**: Durante o deploy
+- **Runtime Logs**: Durante a execução
+
+### Métricas
+
+O Render fornece métricas automáticas:
+- **CPU Usage**
+- **Memory Usage**
+- **Request Count**
+- **Response Time**
+
+## 🛠️ Troubleshooting
+
+### Problemas Comuns
+
+#### 1. Build Falha
+```
+Error: ModuleNotFoundError: No module named 'flask'
+```
+**Solução**: Verifique se `requirements.txt` está na raiz do projeto.
+
+#### 2. Runtime Error
+```
+Error: No such file or directory: '/tmp/ouvidoria.db'
+```
+**Solução**: O banco será criado automaticamente na primeira execução.
+
+#### 3. Health Check Falha
+```
+Error: Database connection failed
+```
+**Solução**: Verifique se o banco foi inicializado corretamente.
+
+### Debug Local
+
+Para testar localmente:
+
+```bash
+# Instalar dependências
+pip install -r requirements.txt
+
+# Executar localmente
+python src/backend/api/app.py
+
+# Testar endpoints
+curl http://localhost:5000/health
+curl http://localhost:5000/api/denuncias
+```
+
+## 🔄 Atualizações
+
+### Deploy Automático
+
+O Render faz deploy automático quando:
+- Você faz push para a branch principal
+- O arquivo `render.yaml` é atualizado
+
+### Deploy Manual
+
+Para forçar um novo deploy:
+1. Vá para o painel do serviço no Render
+2. Clique em "Manual Deploy"
+3. Selecione a branch/commit desejado
+
+## 📊 Performance
+
+### Otimizações Implementadas
+
+- **Gunicorn**: 2 workers para melhor performance
+- **SQLite**: Configurações otimizadas (WAL, cache)
+- **Índices**: Criados automaticamente
+- **CORS**: Configurado para todas as origens
+- **Logging**: Rotativo para evitar uso excessivo de disco
+
+### Recomendações
+
+- **Monitor**: Use as métricas do Render
+- **Scale**: Aumente workers se necessário
+- **Backup**: Configure backup do banco se necessário
+
+## 🔐 Segurança
+
+### Configurações de Segurança
+
+- **CORS**: Configurado para desenvolvimento
+- **Error Messages**: Genéricos em produção
+- **Logs**: Sem dados sensíveis
+- **Database**: Isolado por serviço
+
+### Para Produção
+
+Considere adicionar:
+- **Rate Limiting**
+- **Authentication**
+- **HTTPS Only**
+- **Input Validation**
+
+## 📞 Suporte
+
+Para problemas específicos do Render:
+- **Documentação**: https://render.com/docs
+- **Status**: https://status.render.com
+- **Community**: https://community.render.com
+
+---
+
+**Versão**: 1.0.0  
+**Última atualização**: Dezembro 2024  
+**Compatível com**: Render.com 

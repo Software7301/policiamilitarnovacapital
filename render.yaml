@@ -3,7 +3,15 @@ services:
     name: ouvidoria-pm-backend
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn src.backend.api.app:app --bind 0.0.0.0:$PORT
+    startCommand: gunicorn --config gunicorn.conf.py src.backend.api.app:app
     envVars:
       - key: PYTHON_VERSION
-        value: 3.9.16 
+        value: 3.9.16
+      - key: RENDER
+        value: true
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_DEBUG
+        value: false
+    healthCheckPath: /health
+    autoDeploy: true 

@@ -1,6 +1,7 @@
 """
 API da Ouvidoria da Polícia Militar
 Backend Flask para gerenciamento de denúncias e notícias
+Otimizado para Render.com
 """
 
 from flask import Flask, request, jsonify, render_template, g
@@ -11,10 +12,33 @@ import os
 import sys
 import requests
 import json
+import logging
+from logging.handlers import RotatingFileHandler
+
+# Configuração de logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Configuração do Flask
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
+# Configuração específica para produção no Render
+if os.environ.get("RENDER"):
+    app.config['ENV'] = 'production'
+    app.config['DEBUG'] = False
+    # Configurar logging para produção
+    if not app.debug:
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        file_handler = RotatingFileHandler('logs/ouvidoria.log', maxBytes=10240, backupCount=10)
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('Ouvidoria startup')
 
 @app.after_request
 def after_request(response):
@@ -35,52 +59,88 @@ DISCORD_CONFIG = {
 
 def get_db():
     """Conecta ao banco de dados SQLite"""
-    if os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RENDER"):
-        db_path = os.path.join('/tmp', 'ouvidoria.db')
-    else:
-        db_path = os.path.join(os.path.dirname(__file__), '../database/ouvidoria.db')
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        if os.environ.get("RAILWAY_ENVIRONMENT") or os.environ.get("RENDER"):
+            db_path = os.path.join('/tmp', 'ouvidoria.db')
+        else:
+            db_path = os.path.join(os.path.dirname(__file__), '../database/ouvidoria.db')
+        
+        # Garantir que o diretório existe
+        os.makedirs(os.path.dirname(db_path), exist_ok=True)
+        
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        
+        # Configurar para melhor performance
+        conn.execute('PRAGMA journal_mode=WAL')
+        conn.execute('PRAGMA synchronous=NORMAL')
+        conn.execute('PRAGMA cache_size=10000')
+        conn.execute('PRAGMA temp_store=MEMORY')
+        
+        return conn
+    except Exception as e:
+        logger.error(f"Erro ao conectar com banco de dados: {e}")
+        raise
 
 @app.teardown_appcontext
 def close_connection(exception):
     """Fecha a conexão com o banco de dados"""
     db = getattr(g, '_database', None)
     if db is not None:
-        db.close()
+        try:
+            db.close()
+        except Exception as e:
+            logger.error(f"Erro ao fechar conexão com banco: {e}")
 
 def init_db():
     """Inicializa o banco de dados com as tabelas necessárias"""
-    with app.app_context():
-        db = get_db()
-        # Tabela de denúncias
-        db.execute('''
-            CREATE TABLE IF NOT EXISTS denuncias (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                protocolo TEXT UNIQUE NOT NULL,
-                nome TEXT NOT NULL,
-                rg TEXT NOT NULL,
-                tipo TEXT NOT NULL,
-                descricao TEXT NOT NULL,
-                youtube TEXT,
-                status TEXT DEFAULT 'Em Análise',
-                dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                dataFinalizacao TIMESTAMP
-            )
-        ''')
-        
-        # Tabela de notícias
-        db.execute('''
-            CREATE TABLE IF NOT EXISTS noticias (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                titulo TEXT NOT NULL,
-                conteudo TEXT NOT NULL,
-                fotos TEXT,
-                data_publicacao TEXT NOT NULL
-            )
-        ''')
-        db.commit()
+    try:
+        with app.app_context():
+            db = get_db()
+            
+            # Tabela de denúncias
+            db.execute('''
+                CREATE TABLE IF NOT EXISTS denuncias (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    protocolo TEXT UNIQUE NOT NULL,
+                    nome TEXT NOT NULL,
+                    rg TEXT NOT NULL,
+                    tipo TEXT NOT NULL,
+                    descricao TEXT NOT NULL,
+                    youtube TEXT,
+                    status TEXT DEFAULT 'Em Análise',
+                    dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    dataFinalizacao TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Tabela de notícias
+            db.execute('''
+                CREATE TABLE IF NOT EXISTS noticias (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    titulo TEXT NOT NULL,
+                    conteudo TEXT NOT NULL,
+                    fotos TEXT,
+                    data_publicacao TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            # Criar índices para melhor performance
+            db.execute('CREATE INDEX IF NOT EXISTS idx_denuncias_protocolo ON denuncias(protocolo)')
+            db.execute('CREATE INDEX IF NOT EXISTS idx_denuncias_status ON denuncias(status)')
+            db.execute('CREATE INDEX IF NOT EXISTS idx_denuncias_data_criacao ON denuncias(dataCriacao)')
+            db.execute('CREATE INDEX IF NOT EXISTS idx_noticias_data_publicacao ON noticias(data_publicacao)')
+            
+            db.commit()
+            logger.info("Banco de dados inicializado com sucesso")
+            
+    except Exception as e:
+        logger.error(f"Erro ao inicializar banco de dados: {e}")
+        raise
 
 # Inicializa o banco de dados
 init_db()
@@ -92,12 +152,40 @@ init_db()
 @app.route('/')
 def home():
     """Página inicial da API"""
-    return "API da Ouvidoria da Polícia Militar está online!"
+    return jsonify({
+        "message": "API da Ouvidoria da Polícia Militar está online!",
+        "version": "1.0.0",
+        "environment": "production" if os.environ.get("RENDER") else "development",
+        "timestamp": datetime.datetime.utcnow().isoformat()
+    })
+
+@app.route('/health')
+def health_check():
+    """Endpoint de health check para o Render"""
+    try:
+        db = get_db()
+        # Teste simples de conexão
+        db.execute('SELECT 1')
+        return jsonify({
+            "status": "healthy",
+            "database": "connected",
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Health check falhou: {e}")
+        return jsonify({
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        }), 500
 
 @app.route('/test')
 def test():
     """Endpoint de teste"""
-    return "Test OK"
+    return jsonify({
+        "message": "Test OK",
+        "timestamp": datetime.datetime.utcnow().isoformat()
+    })
 
 # ============================================================================
 # ENDPOINTS DE DENÚNCIAS
@@ -108,6 +196,15 @@ def criar_denuncia():
     """Cria uma nova denúncia"""
     try:
         data = request.json
+        
+        if not data:
+            return jsonify({"error": "Dados não fornecidos"}), 400
+        
+        # Validação dos campos obrigatórios
+        required_fields = ['nome', 'rg', 'tipo', 'descricao']
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"error": f"Campo '{field}' é obrigatório"}), 400
         
         # Mapeamento de tipos
         tipo_input = data.get('tipo', '').strip()
@@ -125,7 +222,7 @@ def criar_denuncia():
         
         # Usa o protocolo enviado pelo frontend ou gera um novo
         protocolo = data.get('protocolo')
-        print(f"Protocolo recebido do frontend: {protocolo}")
+        logger.info(f"Protocolo recebido do frontend: {protocolo}")
         
         # Inicializar conexão com banco
         db = get_db()
@@ -134,28 +231,32 @@ def criar_denuncia():
             cur = db.execute('SELECT COUNT(*) FROM denuncias')
             count = cur.fetchone()[0] + 1
             protocolo = str(count).zfill(4)
-            print(f"Gerando novo protocolo: {protocolo}")
+            logger.info(f"Gerando novo protocolo: {protocolo}")
         else:
-            print(f"Usando protocolo do frontend: {protocolo}")
+            logger.info(f"Usando protocolo do frontend: {protocolo}")
         
         # Insere a denúncia
-        print(f"Inserindo denúncia com protocolo: {protocolo}")
+        logger.info(f"Inserindo denúncia com protocolo: {protocolo}")
         db.execute('''
             INSERT INTO denuncias (protocolo, nome, rg, tipo, descricao, youtube, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (protocolo, data.get('nome'), data.get('rg'), tipo, data.get('descricao'), 
               data.get('youtube'), 'Em Análise'))
         db.commit()
-        print(f"Denúncia inserida com sucesso. Protocolo: {protocolo}")
+        logger.info(f"Denúncia inserida com sucesso. Protocolo: {protocolo}")
         
-        print(f"Retornando protocolo: {protocolo}")
-        return jsonify({'protocolo': protocolo, "message": "Denúncia criada com sucesso"}), 201
+        return jsonify({
+            'protocolo': protocolo, 
+            "message": "Denúncia criada com sucesso",
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        }), 201
         
     except sqlite3.IntegrityError:
+        logger.warning(f"Tentativa de criar denúncia com protocolo duplicado: {protocolo}")
         return jsonify({"error": "Protocolo já existe"}), 400
     except Exception as e:
-        print(f"Erro ao criar denúncia: {e}")
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Erro ao criar denúncia: {e}")
+        return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/api/denuncias', methods=['GET'])
 def listar_denuncias():
@@ -169,7 +270,7 @@ def listar_denuncias():
         for d in denuncias:
             d = dict(d)
             status = d.get('status')
-            finalizada_em_str = d.get('dataFinalizacao') # Changed from finalizada_em
+            finalizada_em_str = d.get('dataFinalizacao')
             
             # Filtra denúncias finalizadas há mais de 4 segundos
             if status == 'Finalizada' and finalizada_em_str:
@@ -181,10 +282,15 @@ def listar_denuncias():
                     continue
             result.append(d)
             
-        return jsonify(result)
+        return jsonify({
+            "denuncias": result,
+            "total": len(result),
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Erro ao listar denúncias: {e}")
+        return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/api/denuncias/<protocolo>', methods=['PATCH', 'PUT', 'OPTIONS'])
 def atualizar_status(protocolo):
@@ -193,7 +299,11 @@ def atualizar_status(protocolo):
         return '', 200
     
     try:
-        status = request.json.get('status')
+        data = request.json
+        if not data or 'status' not in data:
+            return jsonify({"error": "Status é obrigatório"}), 400
+            
+        status = data.get('status')
         db = get_db()
         
         if status == 'Finalizada':
@@ -205,8 +315,8 @@ def atualizar_status(protocolo):
             # Atualizar no banco principal
             finalizada_em = datetime.datetime.utcnow().isoformat()
             db.execute('''
-                UPDATE denuncias SET status = ?, dataFinalizacao = ? WHERE protocolo = ?
-            ''', (status, finalizada_em, protocolo))
+                UPDATE denuncias SET status = ?, dataFinalizacao = ?, updated_at = ? WHERE protocolo = ?
+            ''', (status, finalizada_em, finalizada_em, protocolo))
             db.commit()
             
             # Mover para o backend de finalizadas
@@ -228,23 +338,28 @@ def atualizar_status(protocolo):
                                       json=dados_finalizada, timeout=10)
                 
                 if response.status_code == 201:
-                    print(f"✅ Denúncia {protocolo} movida para finalizadas")
+                    logger.info(f"✅ Denúncia {protocolo} movida para finalizadas")
                 else:
-                    print(f"⚠️ Erro ao mover denúncia {protocolo} para finalizadas: {response.status_code}")
+                    logger.warning(f"⚠️ Erro ao mover denúncia {protocolo} para finalizadas: {response.status_code}")
                     
             except Exception as e:
-                print(f"⚠️ Erro ao conectar com backend de finalizadas: {e}")
+                logger.error(f"⚠️ Erro ao conectar com backend de finalizadas: {e}")
                 # Continua mesmo se falhar, pois a denúncia já foi finalizada no banco principal
         else:
             db.execute('''
-                UPDATE denuncias SET status = ?, dataFinalizacao = NULL WHERE protocolo = ?
-            ''', (status, protocolo))
+                UPDATE denuncias SET status = ?, dataFinalizacao = NULL, updated_at = ? WHERE protocolo = ?
+            ''', (status, datetime.datetime.utcnow().isoformat(), protocolo))
             db.commit()
             
-        return jsonify({'ok': True})
+        return jsonify({
+            'ok': True,
+            'message': f'Status atualizado para {status}',
+            'timestamp': datetime.datetime.utcnow().isoformat()
+        })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Erro ao atualizar status da denúncia {protocolo}: {e}")
+        return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/api/denuncias/<protocolo>', methods=['GET'])
 def buscar_por_protocolo(protocolo):
@@ -253,11 +368,15 @@ def buscar_por_protocolo(protocolo):
         db = get_db()
         d = db.execute('SELECT * FROM denuncias WHERE protocolo = ?', (protocolo,)).fetchone()
         if d:
-            return jsonify(dict(d))
+            return jsonify({
+                "denuncia": dict(d),
+                "timestamp": datetime.datetime.utcnow().isoformat()
+            })
         return jsonify({'error': 'Protocolo não encontrado'}), 404
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Erro ao buscar denúncia por protocolo {protocolo}: {e}")
+        return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/api/denuncias/<protocolo>', methods=['DELETE'])
 def deletar_denuncia(protocolo):
@@ -274,10 +393,16 @@ def deletar_denuncia(protocolo):
         db.execute('DELETE FROM denuncias WHERE protocolo = ?', (protocolo,))
         db.commit()
         
-        return jsonify({'ok': True, 'message': 'Denúncia deletada com sucesso'})
+        logger.info(f"Denúncia {protocolo} deletada com sucesso")
+        return jsonify({
+            'ok': True, 
+            'message': 'Denúncia deletada com sucesso',
+            'timestamp': datetime.datetime.utcnow().isoformat()
+        })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Erro ao deletar denúncia {protocolo}: {e}")
+        return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/api/finalizadas', methods=['GET'])
 def buscar_finalizadas():
@@ -294,10 +419,15 @@ def buscar_finalizadas():
         for denuncia in finalizadas:
             resultado.append(dict(denuncia))
         
-        return jsonify(resultado)
+        return jsonify({
+            "finalizadas": resultado,
+            "total": len(resultado),
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        })
         
     except Exception as e:
-        return jsonify({'error': f'Erro ao buscar finalizadas: {str(e)}'}), 500
+        logger.error(f"Erro ao buscar finalizadas: {e}")
+        return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/api/finalizadas/<protocolo>', methods=['GET'])
 def buscar_finalizada_por_protocolo(protocolo):
@@ -310,18 +440,25 @@ def buscar_finalizada_por_protocolo(protocolo):
         ''', (protocolo,)).fetchone()
         
         if denuncia:
-            return jsonify(dict(denuncia))
+            return jsonify({
+                "finalizada": dict(denuncia),
+                "timestamp": datetime.datetime.utcnow().isoformat()
+            })
         else:
             return jsonify({'error': 'Denúncia finalizada não encontrada'}), 404
             
     except Exception as e:
-        return jsonify({'error': f'Erro ao buscar finalizada: {str(e)}'}), 500
+        logger.error(f"Erro ao buscar finalizada por protocolo {protocolo}: {e}")
+        return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/api/finalizadas', methods=['POST'])
 def adicionar_finalizada():
     """Adiciona uma denúncia finalizada (proxy)"""
     try:
         data = request.get_json()
+        
+        if not data:
+            return jsonify({"error": "Dados não fornecidos"}), 400
         
         # Validar dados obrigatórios
         if not data.get('protocolo'):
@@ -336,14 +473,16 @@ def adicionar_finalizada():
             # Atualizar status para Finalizada
             db.execute('''
                 UPDATE denuncias 
-                SET status = 'Finalizada', dataFinalizacao = ? 
+                SET status = 'Finalizada', dataFinalizacao = ?, updated_at = ? 
                 WHERE protocolo = ?
-            ''', (data.get('data_finalizacao', datetime.datetime.utcnow().isoformat()), data['protocolo']))
+            ''', (data.get('data_finalizacao', datetime.datetime.utcnow().isoformat()), 
+                  datetime.datetime.utcnow().isoformat(), data['protocolo']))
             db.commit()
             
             return jsonify({
                 "message": "Denúncia finalizada atualizada com sucesso",
-                "protocolo": data['protocolo']
+                "protocolo": data['protocolo'],
+                "timestamp": datetime.datetime.utcnow().isoformat()
             }), 200
         else:
             # Inserir nova denúncia finalizada
@@ -364,12 +503,13 @@ def adicionar_finalizada():
             
             return jsonify({
                 "message": "Denúncia finalizada adicionada com sucesso",
-                "protocolo": data['protocolo']
+                "protocolo": data['protocolo'],
+                "timestamp": datetime.datetime.utcnow().isoformat()
             }), 201
             
     except Exception as e:
-        print(f"Erro em adicionar_finalizada: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"Erro em adicionar_finalizada: {str(e)}")
+        return jsonify({"error": 'Erro interno do servidor'}), 500
 
 # ============================================================================
 # ENDPOINTS DE NOTÍCIAS
@@ -381,16 +521,24 @@ def listar_noticias():
     try:
         db = get_db()
         noticias = db.execute('SELECT * FROM noticias ORDER BY data_publicacao DESC').fetchall()
-        return jsonify([dict(n) for n in noticias])
+        return jsonify({
+            "noticias": [dict(n) for n in noticias],
+            "total": len(noticias),
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Erro ao listar notícias: {e}")
+        return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/api/noticias', methods=['POST'])
 def criar_noticia():
     """Cria uma nova notícia"""
     try:
         data = request.get_json()
+        
+        if not data:
+            return jsonify({"error": "Dados não fornecidos"}), 400
         
         # Valida dados obrigatórios
         titulo = data.get('titulo', '').strip()
@@ -412,13 +560,16 @@ def criar_noticia():
         db.commit()
         noticia_id = cursor.lastrowid
         
+        logger.info(f"Nova notícia criada com ID: {noticia_id}")
         return jsonify({
             'ok': True, 
             'message': 'Notícia criada com sucesso',
-            'id': noticia_id
+            'id': noticia_id,
+            'timestamp': datetime.datetime.utcnow().isoformat()
         }), 201
         
     except Exception as e:
+        logger.error(f"Erro ao criar notícia: {e}")
         return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/api/noticias/<int:noticia_id>', methods=['DELETE'])
@@ -436,10 +587,16 @@ def deletar_noticia(noticia_id):
         db.execute('DELETE FROM noticias WHERE id = ?', (noticia_id,))
         db.commit()
         
-        return jsonify({'ok': True, 'message': 'Notícia deletada com sucesso'})
+        logger.info(f"Notícia {noticia_id} deletada com sucesso")
+        return jsonify({
+            'ok': True, 
+            'message': 'Notícia deletada com sucesso',
+            'timestamp': datetime.datetime.utcnow().isoformat()
+        })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        logger.error(f"Erro ao deletar notícia {noticia_id}: {e}")
+        return jsonify({'error': 'Erro interno do servidor'}), 500
 
 # ============================================================================
 # ENDPOINTS DE DIAGNÓSTICO
@@ -462,10 +619,12 @@ def debug_noticias():
         return jsonify({
             'ok': True,
             'columns': [dict(col) for col in columns],
-            'noticias': [dict(noticia) for noticia in noticias]
+            'noticias': [dict(noticia) for noticia in noticias],
+            'timestamp': datetime.datetime.utcnow().isoformat()
         })
         
     except Exception as e:
+        logger.error(f"Erro no debug de notícias: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/check-table')
@@ -494,10 +653,12 @@ def check_table():
             'noticias_table_exists': bool(noticias_exists),
             'denuncias_table_exists': bool(denuncias_exists),
             'total_noticias': noticias_count,
-            'total_denuncias': denuncias_count
+            'total_denuncias': denuncias_count,
+            'timestamp': datetime.datetime.utcnow().isoformat()
         })
         
     except Exception as e:
+        logger.error(f"Erro ao verificar tabelas: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/discord/members', methods=['GET'])
@@ -539,7 +700,7 @@ def get_discord_members():
         response = requests.get(guild_url, headers=headers)
         
         if response.status_code != 200:
-            print(f"Erro ao buscar membros do Discord: {response.status_code}")
+            logger.warning(f"Erro ao buscar membros do Discord: {response.status_code}")
             return jsonify([])
         
         members_data = response.json()
@@ -595,7 +756,7 @@ def get_discord_members():
         return jsonify(members)
         
     except Exception as e:
-        print(f"Erro ao buscar membros do Discord: {e}")
+        logger.error(f"Erro ao buscar membros do Discord: {e}")
         return jsonify([])
 
 # ============================================================================
@@ -604,4 +765,5 @@ def get_discord_members():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
+    logger.info(f"Iniciando servidor na porta {port}")
     app.run(debug=False, host='0.0.0.0', port=port)
