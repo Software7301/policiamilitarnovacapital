@@ -835,8 +835,30 @@ async function moverParaFinalizadas(protocolo) {
             observacoes: 'Movida automaticamente do painel admin'
         };
         
-        // Enviar para o backend de finalizadas
-        const finalizadasResponse = await fetch('https://ouvidoria-finalizadas.onrender.com/api/finalizadas', {
+        // Tentar enviar para o backend de finalizadas (se estiver funcionando)
+        try {
+            const finalizadasResponse = await fetch('https://ouvidoria-finalizadas.onrender.com/api/finalizadas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(dadosFinalizada)
+            });
+            
+            if (finalizadasResponse.ok) {
+                console.log('✅ Denúncia movida para finalizadas com sucesso!');
+                return await finalizadasResponse.json();
+            } else {
+                console.log('⚠️ Backend de finalizadas não respondeu, continuando...');
+            }
+        } catch (finalizadasError) {
+            console.log('⚠️ Backend de finalizadas não disponível:', finalizadasError.message);
+        }
+        
+        // Se o backend de finalizadas não funcionar, usar o proxy do backend principal
+        console.log('🔄 Usando proxy do backend principal...');
+        const proxyResponse = await fetch('https://policiamilitarnovacapital.onrender.com/api/finalizadas', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -845,12 +867,12 @@ async function moverParaFinalizadas(protocolo) {
             body: JSON.stringify(dadosFinalizada)
         });
         
-        if (!finalizadasResponse.ok) {
-            throw new Error(`Erro ao enviar para finalizadas: ${finalizadasResponse.status}`);
+        if (proxyResponse.ok) {
+            console.log('✅ Denúncia movida via proxy com sucesso!');
+            return await proxyResponse.json();
+        } else {
+            throw new Error(`Erro ao enviar via proxy: ${proxyResponse.status}`);
         }
-        
-        console.log('✅ Denúncia movida para finalizadas com sucesso!');
-        return await finalizadasResponse.json();
         
     } catch (error) {
         console.log('❌ Erro ao mover para finalizadas:', error.message);

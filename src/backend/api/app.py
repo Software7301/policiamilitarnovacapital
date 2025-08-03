@@ -249,40 +249,95 @@ def deletar_denuncia(protocolo):
 
 @app.route('/api/finalizadas', methods=['GET'])
 def buscar_finalizadas():
-    """Busca denúncias finalizadas no servidor Render"""
+    """Busca denúncias finalizadas no banco local"""
     try:
-        import requests
+        db = get_db()
+        finalizadas = db.execute('''
+            SELECT * FROM denuncias 
+            WHERE status = 'Finalizada' 
+            ORDER BY finalizada_em DESC
+        ''').fetchall()
         
-        # Buscar no servidor Render de finalizadas
-        response = requests.get('https://ouvidoria-finalizadas.onrender.com/api/finalizadas', timeout=10)
+        resultado = []
+        for denuncia in finalizadas:
+            resultado.append(dict(denuncia))
         
-        if response.status_code == 200:
-            finalizadas = response.json()
-            return jsonify(finalizadas)
-        else:
-            return jsonify({'error': f'Erro ao buscar finalizadas: {response.status_code}'}), 500
-            
+        return jsonify(resultado)
+        
     except Exception as e:
-        return jsonify({'error': f'Erro ao conectar com servidor de finalizadas: {str(e)}'}), 500
+        return jsonify({'error': f'Erro ao buscar finalizadas: {str(e)}'}), 500
 
 @app.route('/api/finalizadas/<protocolo>', methods=['GET'])
 def buscar_finalizada_por_protocolo(protocolo):
     """Busca uma denúncia finalizada por protocolo"""
     try:
-        import requests
+        db = get_db()
+        denuncia = db.execute('''
+            SELECT * FROM denuncias 
+            WHERE protocolo = ? AND status = 'Finalizada'
+        ''', (protocolo,)).fetchone()
         
-        # Buscar no servidor Render de finalizadas
-        response = requests.get(f'https://ouvidoria-finalizadas.onrender.com/api/finalizadas/{protocolo}', timeout=10)
-        
-        if response.status_code == 200:
-            return jsonify(response.json())
-        elif response.status_code == 404:
-            return jsonify({'error': 'Denúncia finalizada não encontrada'}), 404
+        if denuncia:
+            return jsonify(dict(denuncia))
         else:
-            return jsonify({'error': f'Erro ao buscar finalizada: {response.status_code}'}), 500
+            return jsonify({'error': 'Denúncia finalizada não encontrada'}), 404
             
     except Exception as e:
-        return jsonify({'error': f'Erro ao conectar com servidor de finalizadas: {str(e)}'}), 500
+        return jsonify({'error': f'Erro ao buscar finalizada: {str(e)}'}), 500
+
+@app.route('/api/finalizadas', methods=['POST'])
+def adicionar_finalizada():
+    """Adiciona uma denúncia finalizada (proxy)"""
+    try:
+        data = request.get_json()
+        
+        # Validar dados obrigatórios
+        if not data.get('protocolo'):
+            return jsonify({"error": "Protocolo é obrigatório"}), 400
+        
+        db = get_db()
+        
+        # Verificar se já existe
+        d = db.execute('SELECT protocolo FROM denuncias WHERE protocolo = ?', (data['protocolo'],)).fetchone()
+        
+        if d:
+            # Atualizar status para Finalizada
+            db.execute('''
+                UPDATE denuncias 
+                SET status = 'Finalizada', finalizada_em = ? 
+                WHERE protocolo = ?
+            ''', (data.get('data_finalizacao', datetime.datetime.utcnow().isoformat()), data['protocolo']))
+            db.commit()
+            
+            return jsonify({
+                "message": "Denúncia finalizada atualizada com sucesso",
+                "protocolo": data['protocolo']
+            }), 200
+        else:
+            # Inserir nova denúncia finalizada
+            db.execute('''
+                INSERT INTO denuncias 
+                (protocolo, nome, rg, tipo, descricao, youtube, status, data_criacao, finalizada_em)
+                VALUES (?, ?, ?, ?, ?, ?, 'Finalizada', ?, ?)
+            ''', (
+                data.get('protocolo'),
+                data.get('nome', 'Anônimo'),
+                data.get('rg', ''),
+                data.get('tipo', ''),
+                data.get('descricao', ''),
+                data.get('youtube', ''),
+                data.get('data_criacao', datetime.datetime.utcnow().isoformat()),
+                data.get('data_finalizacao', datetime.datetime.utcnow().isoformat())
+            ))
+            db.commit()
+            
+            return jsonify({
+                "message": "Denúncia finalizada adicionada com sucesso",
+                "protocolo": data['protocolo']
+            }), 201
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ============================================================================
 # ENDPOINTS DE NOTÍCIAS
