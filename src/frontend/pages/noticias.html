@@ -192,15 +192,15 @@
                 
                 console.log('📰 Notícias processadas:', noticias);
                 
-                if (noticias.length === 0) {
-                    noticiasLista.innerHTML = `
-                        <div class="sem-noticias">
-                            <h3>Nenhuma notícia publicada</h3>
-                            <p>Aguarde novas publicações da Polícia Militar.</p>
-                        </div>
-                    `;
-                    return;
-                }
+                                 if (noticias.length === 0) {
+                     noticiasLista.innerHTML = `
+                         <div class="sem-noticias">
+                             <h3>Nenhuma notícia publicada</h3>
+                             <p>Aguarde novas publicações da Polícia Militar.</p>
+                         </div>
+                     `;
+                     return;
+                 }
                 
                 // Ordenar por data mais recente
                 noticias.sort((a, b) => new Date(b.data_publicacao) - new Date(a.data_publicacao));
