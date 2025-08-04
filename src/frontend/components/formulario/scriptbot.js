@@ -158,11 +158,11 @@ async function sendToDatabase(responses) {
 
 async function buscarProtocolo(protocolo) {
   try {
-    console.log('Buscando protocolo:', protocolo);
+    console.log('🔍 Buscando protocolo:', protocolo);
     
     // 1. Primeiro buscar no backend principal (denúncias ativas)
     try {
-      console.log('Buscando no backend principal...');
+      console.log('📋 Buscando no backend principal (denúncias ativas)...');
       const response = await fetch(`https://policiamilitarnovacapital.onrender.com/api/denuncias/${protocolo}`, {
         method: 'GET',
         headers: {
@@ -174,14 +174,16 @@ async function buscarProtocolo(protocolo) {
         const denuncia = await response.json();
         console.log('✅ Denúncia encontrada no backend principal:', denuncia);
         return denuncia;
+      } else {
+        console.log('❌ Protocolo não encontrado no backend principal');
       }
     } catch (error) {
-      console.log('Erro ao buscar no backend principal:', error);
+      console.log('❌ Erro ao buscar no backend principal:', error);
     }
     
     // 2. Se não encontrou, buscar no backend de finalizadas
     try {
-      console.log('Buscando no backend de finalizadas...');
+      console.log('✅ Buscando no backend de finalizadas...');
       const finalizadasResponse = await fetch(`https://ouvidoria-finalizadas.onrender.com/api/finalizadas/${protocolo}`, {
         method: 'GET',
         headers: {
@@ -193,51 +195,19 @@ async function buscarProtocolo(protocolo) {
         const denunciaFinalizada = await finalizadasResponse.json();
         console.log('✅ Denúncia encontrada no backend de finalizadas:', denunciaFinalizada);
         return denunciaFinalizada;
+      } else {
+        console.log('❌ Protocolo não encontrado no backend de finalizadas');
       }
     } catch (error) {
-      console.log('Erro ao buscar no backend de finalizadas:', error);
+      console.log('❌ Erro ao buscar no backend de finalizadas:', error);
     }
     
-    // 3. Se não encontrou em nenhum, buscar via proxy do backend principal
-    try {
-      console.log('Buscando via proxy do backend principal...');
-      const proxyResponse = await fetch(`https://policiamilitarnovacapital.onrender.com/api/finalizadas/${protocolo}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      
-      if (proxyResponse.ok) {
-        const denunciaViaProxy = await proxyResponse.json();
-        console.log('✅ Denúncia encontrada via proxy:', denunciaViaProxy);
-        return denunciaViaProxy;
-      }
-    } catch (error) {
-      console.log('Erro ao buscar via proxy:', error);
-    }
-    
-    // 4. Se não encontrou em nenhum backend, simular dados para demonstração
-    console.log('❌ Protocolo não encontrado, simulando dados para demonstração');
-    
-    // Simular dados baseados no protocolo
-    const protocoloNum = parseInt(protocolo);
-    const simulacao = {
-      protocolo: protocolo,
-      nome: 'Anônimo',
-      rg: 'XX.XXX.XXX-X',
-      tipo: protocoloNum % 3 === 0 ? 'Denúncia' : protocoloNum % 3 === 1 ? 'Elogio' : 'Sugestão',
-      status: protocoloNum % 4 === 0 ? 'Finalizada' : 'Em Análise',
-      descricao: `Descrição da solicitação protocolo ${protocolo}. Esta é uma simulação para demonstração do sistema.`,
-      dataCriacao: new Date(Date.now() - (protocoloNum * 24 * 60 * 60 * 1000)).toISOString(),
-      finalizada_em: protocoloNum % 4 === 0 ? new Date(Date.now() - (protocoloNum * 12 * 60 * 60 * 1000)).toISOString() : null
-    };
-    
-    console.log('✅ Dados simulados criados:', simulacao);
-    return simulacao;
+    // 3. Se não encontrou em nenhum, retornar null (protocolo não existe)
+    console.log('❌ Protocolo não encontrado em nenhum servidor');
+    return null;
     
   } catch (error) {
-    console.error("Erro ao buscar protocolo:", error);
+    console.error("❌ Erro geral ao buscar protocolo:", error);
     return null;
   }
 }
@@ -309,44 +279,15 @@ async function nextStep(userText) {
              dataFormatada = data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
            }
            
-           // Verificar se é uma simulação (baseado no nome ser 'Anônimo' e RG ser padrão)
-           const isSimulacao = dados.nome === 'Anônimo' && dados.rg === 'XX.XXX.XXX-X';
-           
            // Verificar se a denúncia foi finalizada
            if (dados.status === 'Finalizada') {
-             if (isSimulacao) {
-               typeBotMessage(`🎭 **DEMONSTRAÇÃO - Denúncia Finalizada!**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome}\n**Tipo:** ${dados.tipo}\n**Status:** ${dados.status}\n**Descrição:** ${dados.descricao}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\n🎉 Esta é uma simulação para demonstração do sistema!\n\nObrigado por utilizar nossa ouvidoria!`);
-             } else {
-               typeBotMessage(`✅ **Denúncia Finalizada!**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo || 'Não informado'}\n**Status:** ${dados.status}\n**Descrição:** ${dados.descricao || 'Não informada'}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\n🎉 Sua denúncia foi finalizada com sucesso!\n\nObrigado por utilizar nossa ouvidoria!`);
-             }
+             typeBotMessage(`✅ **Denúncia Finalizada!**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo || 'Não informado'}\n**Status:** ${dados.status}\n**Descrição:** ${dados.descricao || 'Não informada'}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\n🎉 Sua denúncia foi finalizada com sucesso!\n\nObrigado por utilizar nossa ouvidoria!`);
            } else {
-             if (isSimulacao) {
-               typeBotMessage(`🎭 **DEMONSTRAÇÃO - Status da Denúncia**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome}\n**Tipo:** ${dados.tipo}\n**Status:** ${dados.status}\n**Descrição:** ${dados.descricao}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\nEsta é uma simulação para demonstração do sistema!\n\nSua denúncia está sendo analisada pela nossa equipe.\n\nObrigado por utilizar nossa ouvidoria!`);
-             } else {
-               typeBotMessage(`📋 **Status da sua Denúncia**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo || 'Não informado'}\n**Status:** ${dados.status || 'Em Análise'}\n**Descrição:** ${dados.descricao || 'Não informada'}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\nSua denúncia está sendo analisada pela nossa equipe.\n\nObrigado por utilizar nossa ouvidoria!`);
-             }
+             typeBotMessage(`📋 **Status da sua Denúncia**\n\n**Protocolo:** ${dados.protocolo}\n**Nome:** ${dados.nome || 'Anônimo'}\n**Tipo:** ${dados.tipo || 'Não informado'}\n**Status:** ${dados.status || 'Em Análise'}\n**Descrição:** ${dados.descricao || 'Não informada'}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\nSua denúncia está sendo analisada pela nossa equipe.\n\nObrigado por utilizar nossa ouvidoria!`);
            }
          } else {
-           // Se não encontrou dados, criar simulação diretamente
-           console.log('Criando simulação direta para protocolo:', protocolo);
-           const protocoloNum = parseInt(protocolo);
-           const simulacao = {
-             protocolo: protocolo,
-             nome: 'Anônimo',
-             rg: 'XX.XXX.XXX-X',
-             tipo: protocoloNum % 3 === 0 ? 'Denúncia' : protocoloNum % 3 === 1 ? 'Elogio' : 'Sugestão',
-             status: protocoloNum % 4 === 0 ? 'Finalizada' : 'Em Análise',
-             descricao: `Descrição da solicitação protocolo ${protocolo}. Esta é uma simulação para demonstração do sistema.`,
-             dataCriacao: new Date(Date.now() - (protocoloNum * 24 * 60 * 60 * 1000)).toISOString(),
-             finalizada_em: protocoloNum % 4 === 0 ? new Date(Date.now() - (protocoloNum * 12 * 60 * 60 * 1000)).toISOString() : null
-           };
-           
-           if (simulacao.status === 'Finalizada') {
-             const dataFormatada = simulacao.finalizada_em ? new Date(simulacao.finalizada_em).toLocaleDateString('pt-BR') + ' ' + new Date(simulacao.finalizada_em).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : '';
-             typeBotMessage(`🎭 **DEMONSTRAÇÃO - Denúncia Finalizada!**\n\n**Protocolo:** ${simulacao.protocolo}\n**Nome:** ${simulacao.nome}\n**Tipo:** ${simulacao.tipo}\n**Status:** ${simulacao.status}\n**Descrição:** ${simulacao.descricao}${dataFormatada ? `\n**Finalizada em:** ${dataFormatada}` : ''}\n\n🎉 Esta é uma simulação para demonstração do sistema!\n\nObrigado por utilizar nossa ouvidoria!`);
-           } else {
-             typeBotMessage(`🎭 **DEMONSTRAÇÃO - Status da Denúncia**\n\n**Protocolo:** ${simulacao.protocolo}\n**Nome:** ${simulacao.nome}\n**Tipo:** ${simulacao.tipo}\n**Status:** ${simulacao.status}\n**Descrição:** ${simulacao.descricao}\n\nEsta é uma simulação para demonstração do sistema!\n\nSua denúncia está sendo analisada pela nossa equipe.\n\nObrigado por utilizar nossa ouvidoria!`);
-           }
+           // Protocolo não encontrado
+           typeBotMessage(`❌ **Protocolo não encontrado**\n\n**Protocolo:** ${protocolo}\n**Status:** Não encontrado\n\nO protocolo ${protocolo} não foi encontrado em nossa base de dados.\n\nVerifique se o número está correto ou entre em contato conosco.`);
          }
       } else {
         typeBotMessage("✅ Agora informe seu número de RG:");
