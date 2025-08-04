@@ -170,13 +170,25 @@ async function buscarProtocolo(protocolo) {
         }
       });
       
-      if (response.ok) {
-        const denuncia = await response.json();
-        console.log('✅ Denúncia encontrada no backend principal:', denuncia);
-        return denuncia;
-      } else {
-        console.log('❌ Protocolo não encontrado no backend principal');
-      }
+             if (response.ok) {
+         const responseData = await response.json();
+         console.log('✅ Resposta do backend principal:', responseData);
+         
+         // Verificar se a resposta tem a estrutura {denuncia: {...}}
+         if (responseData.denuncia) {
+           console.log('✅ Denúncia encontrada no backend principal:', responseData.denuncia);
+           return responseData.denuncia;
+         } else if (responseData.protocolo) {
+           // Se não tem .denuncia mas tem .protocolo, usar diretamente
+           console.log('✅ Denúncia encontrada no backend principal:', responseData);
+           return responseData;
+         } else {
+           console.log('❌ Estrutura de resposta inesperada:', responseData);
+           return null;
+         }
+       } else {
+         console.log('❌ Protocolo não encontrado no backend principal');
+       }
     } catch (error) {
       console.log('❌ Erro ao buscar no backend principal:', error);
     }
@@ -191,13 +203,25 @@ async function buscarProtocolo(protocolo) {
         }
       });
       
-      if (finalizadasResponse.ok) {
-        const denunciaFinalizada = await finalizadasResponse.json();
-        console.log('✅ Denúncia encontrada no backend de finalizadas:', denunciaFinalizada);
-        return denunciaFinalizada;
-      } else {
-        console.log('❌ Protocolo não encontrado no backend de finalizadas');
-      }
+             if (finalizadasResponse.ok) {
+         const responseData = await finalizadasResponse.json();
+         console.log('✅ Resposta do backend de finalizadas:', responseData);
+         
+         // Verificar se a resposta tem a estrutura {finalizada: {...}}
+         if (responseData.finalizada) {
+           console.log('✅ Denúncia encontrada no backend de finalizadas:', responseData.finalizada);
+           return responseData.finalizada;
+         } else if (responseData.protocolo) {
+           // Se não tem .finalizada mas tem .protocolo, usar diretamente
+           console.log('✅ Denúncia encontrada no backend de finalizadas:', responseData);
+           return responseData;
+         } else {
+           console.log('❌ Estrutura de resposta inesperada:', responseData);
+           return null;
+         }
+       } else {
+         console.log('❌ Protocolo não encontrado no backend de finalizadas');
+       }
     } catch (error) {
       console.log('❌ Erro ao buscar no backend de finalizadas:', error);
     }
@@ -274,10 +298,15 @@ async function nextStep(userText) {
         
                  if (dados && dados.protocolo) {
            let dataFormatada = '';
-           if (dados.finalizada_em) {
-             const data = new Date(dados.finalizada_em);
+           
+           // Verificar diferentes campos de data de finalização
+           const dataFinalizacao = dados.dataFinalizacao || dados.finalizada_em || dados.data_finalizacao;
+           if (dataFinalizacao) {
+             const data = new Date(dataFinalizacao);
              dataFormatada = data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
            }
+           
+           console.log('📋 Exibindo dados da denúncia:', dados);
            
            // Verificar se a denúncia foi finalizada
            if (dados.status === 'Finalizada') {
