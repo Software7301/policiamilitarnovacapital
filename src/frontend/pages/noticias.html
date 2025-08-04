@@ -176,7 +176,21 @@
                     throw new Error(`HTTP ${response.status}`);
                 }
                 
-                const noticias = await response.json();
+                const responseData = await response.json();
+                console.log('📰 Resposta da API de notícias:', responseData);
+                
+                // Verificar se a resposta tem a estrutura {noticias: [...]}
+                let noticias = [];
+                if (responseData.noticias) {
+                    noticias = responseData.noticias;
+                } else if (Array.isArray(responseData)) {
+                    noticias = responseData;
+                } else {
+                    console.error('❌ Estrutura de resposta inesperada:', responseData);
+                    throw new Error('Formato de resposta inválido');
+                }
+                
+                console.log('📰 Notícias processadas:', noticias);
                 
                 if (noticias.length === 0) {
                     noticiasLista.innerHTML = `
