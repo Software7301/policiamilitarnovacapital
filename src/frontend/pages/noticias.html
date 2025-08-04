@@ -232,45 +232,16 @@
                                       .replace(/'/g, '&#39;');
                                   return `${textoEscapado}<br>`;
                               }).join('');
-                         } else {
-                             // Se não tem quebras de linha, quebrar automaticamente a cada 80 caracteres
-                             const texto = noticia.conteudo;
-                             const maxChars = 80;
-                             const palavras = texto.split(' ');
-                             let linhas = [];
-                             let linhaAtual = '';
-                             
-                             for (let palavra of palavras) {
-                                 if ((linhaAtual + palavra).length > maxChars) {
-                                     if (linhaAtual) {
-                                         linhas.push(linhaAtual.trim());
-                                         linhaAtual = palavra + ' ';
-                                     } else {
-                                         // Palavra muito longa, quebrar no meio
-                                         linhas.push(palavra.substring(0, maxChars));
-                                         linhaAtual = palavra.substring(maxChars) + ' ';
-                                     }
-                                 } else {
-                                     linhaAtual += palavra + ' ';
-                                 }
-                             }
-                             
-                             if (linhaAtual.trim()) {
-                                 linhas.push(linhaAtual.trim());
-                             }
-                             
-                             console.log('Linhas processadas:', linhas);
-                             
-                             conteudoFormatado = linhas.map(linha => {
-                                 const textoEscapado = linha
-                                     .replace(/&/g, '&amp;')
-                                     .replace(/</g, '&lt;')
-                                     .replace(/>/g, '&gt;')
-                                     .replace(/"/g, '&quot;')
-                                     .replace(/'/g, '&#39;');
-                                 return `${textoEscapado}<br>`;
-                             }).join('');
-                         }
+                                                   } else {
+                              // Se não tem quebras de linha, usar o texto original sem quebrar
+                              const textoEscapado = noticia.conteudo
+                                  .replace(/&/g, '&amp;')
+                                  .replace(/</g, '&lt;')
+                                  .replace(/>/g, '&gt;')
+                                  .replace(/"/g, '&quot;')
+                                  .replace(/'/g, '&#39;');
+                              conteudoFormatado = textoEscapado;
+                          }
                          
                          console.log('Conteúdo formatado:', conteudoFormatado);
                      } else {
@@ -381,44 +352,16 @@
                          
                          return `${textoEscapado}<br>`;
                      }).join('');
-                 } else {
-                     // Se não tem quebras de linha, quebrar automaticamente a cada 80 caracteres
-                     const texto = noticia.conteudo;
-                     const maxChars = 80;
-                     const palavras = texto.split(' ');
-                     let linhas = [];
-                     let linhaAtual = '';
-                     
-                     for (let palavra of palavras) {
-                         if ((linhaAtual + palavra).length > maxChars) {
-                             if (linhaAtual) {
-                                 linhas.push(linhaAtual.trim());
-                                 linhaAtual = palavra + ' ';
-                             } else {
-                                 // Palavra muito longa, quebrar no meio
-                                 linhas.push(palavra.substring(0, maxChars));
-                                 linhaAtual = palavra.substring(maxChars) + ' ';
-                             }
-                         } else {
-                             linhaAtual += palavra + ' ';
-                         }
-                     }
-                     
-                     if (linhaAtual.trim()) {
-                         linhas.push(linhaAtual.trim());
-                     }
-                     
-                     // Criar quebras de linha
-                     conteudoFormatado = linhas.map(linha => {
-                         const textoEscapado = linha
-                             .replace(/&/g, '&amp;')
-                             .replace(/</g, '&lt;')
-                             .replace(/>/g, '&gt;')
-                             .replace(/"/g, '&quot;')
-                             .replace(/'/g, '&#39;');
-                         return `${textoEscapado}<br>`;
-                     }).join('');
-                 }
+                                   } else {
+                      // Se não tem quebras de linha, usar o texto original sem quebrar
+                      const textoEscapado = noticia.conteudo
+                          .replace(/&/g, '&amp;')
+                          .replace(/</g, '&lt;')
+                          .replace(/>/g, '&gt;')
+                          .replace(/"/g, '&quot;')
+                          .replace(/'/g, '&#39;');
+                      conteudoFormatado = textoEscapado;
+                  }
                  
                  console.log('Conteúdo processado:', conteudoFormatado);
              } else {

@@ -2393,6 +2393,16 @@ footer {
   overflow: hidden;
 }
 
+.noticia-conteudo {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  word-wrap: break-word;
+  word-break: normal;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
 .noticia-card .ler-mais {
   display: inline-flex;
   align-items: center;
